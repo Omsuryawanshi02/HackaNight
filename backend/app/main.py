@@ -26,9 +26,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Ensure tables exist in database (both SQLite and Supabase Postgres)
     try:
-        from app.db.session import _normalize_database_url
+        from app.db.session import _is_supabase_pooler_url, _normalize_database_url
         db_norm = _normalize_database_url(settings.database_url)
-        connect_args = {"statement_cache_size": 0} if "pooler.supabase.com" in db_norm else {}
+        connect_args = {"statement_cache_size": 0} if _is_supabase_pooler_url(db_norm) else {}
         engine = create_async_engine(db_norm, echo=False, connect_args=connect_args)
         async with engine.begin() as conn:
             # Import models so they register with Base.metadata

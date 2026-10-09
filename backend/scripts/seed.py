@@ -22,7 +22,7 @@ from app.core.config import get_settings
 from app.core.security import get_password_hash
 from app.db.base import Base
 from app.db.models import Project, ProjectMember, User
-from app.db.session import _normalize_database_url
+from app.db.session import _is_supabase_pooler_url, _normalize_database_url
 
 USERS = [
     {
@@ -56,7 +56,7 @@ async def async_seed() -> None:
     settings = get_settings()
     url = _normalize_database_url(settings.database_url)
     connect_args = {}
-    if "pooler.supabase.com" in url:
+    if _is_supabase_pooler_url(url):
         connect_args = {"statement_cache_size": 0}
     engine = create_async_engine(url, future=True, echo=False, connect_args=connect_args)
 
