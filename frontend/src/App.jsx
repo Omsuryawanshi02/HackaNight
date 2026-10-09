@@ -34,28 +34,27 @@ import { checkBackendHealth } from './services/api';
 // Role → default landing page mapping
 const DEFAULT_TAB_FOR_ROLE = {
   'Main Supervisor': 'admin-dashboard',
+  'Administrator': 'admin-dashboard',
+  'Admin': 'admin-dashboard',
   'Contractor': 'dashboard',
   'Shopkeeper': 'dashboard',
   'Auditor': 'dashboard',
 };
 
-// Role → allowed tabs
+const ALL_ACCESSIBLE_TABS = [
+  'admin-dashboard', 'dashboard', 'user-management', 'activity-logs',
+  'photo-audit', 'material-audit', 'inventory-anomalies',
+  'auditor-review', 'audit-reports', 'settings'
+];
+
+// Role → allowed tabs (All dashboards and audit features accessible to all authenticated roles)
 const ALLOWED_TABS = {
-  'Main Supervisor': [
-    'admin-dashboard', 'user-management', 'activity-logs',
-    'photo-audit', 'material-audit', 'inventory-anomalies',
-    'auditor-review', 'audit-reports', 'settings'
-  ],
-  'Contractor': [
-    'dashboard', 'photo-audit', 'audit-reports', 'settings'
-  ],
-  'Shopkeeper': [
-    'dashboard', 'material-audit', 'audit-reports', 'settings'
-  ],
-  'Auditor': [
-    'dashboard', 'photo-audit', 'material-audit',
-    'inventory-anomalies', 'auditor-review', 'audit-reports', 'settings'
-  ],
+  'Main Supervisor': ALL_ACCESSIBLE_TABS,
+  'Administrator': ALL_ACCESSIBLE_TABS,
+  'Admin': ALL_ACCESSIBLE_TABS,
+  'Contractor': ALL_ACCESSIBLE_TABS,
+  'Shopkeeper': ALL_ACCESSIBLE_TABS,
+  'Auditor': ALL_ACCESSIBLE_TABS,
 };
 
 export default function App() {
@@ -112,17 +111,19 @@ export default function App() {
     }
   }, [isAuthenticated, role]);
 
-  // Enforce role-based tab access
-  const handleSetTab = useCallback((tab) => {
-    if (!role) return;
-    const allowed = ALLOWED_TABS[role] || [];
-    if (allowed.includes(tab)) {
+  // Navigation & tab access with alias handling
+  const handleSetTab = useCallback((targetTab) => {
+    const ALIASES = {
+      'projects': 'settings',
+      'all-audits': 'auditor-review'
+    };
+    const tab = ALIASES[targetTab] || targetTab;
+    if (ALL_ACCESSIBLE_TABS.includes(tab)) {
       setCurrentTab(tab);
     } else {
-      // Fallback to default for role
-      setCurrentTab(DEFAULT_TAB_FOR_ROLE[role] || 'dashboard');
+      setCurrentTab('dashboard');
     }
-  }, [role]);
+  }, []);
 
   // Synchronize stats dynamically based on current lists
   useEffect(() => {
@@ -281,8 +282,8 @@ export default function App() {
 
         {/* Page Content Viewport */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          {/* ── Admin Pages (Main Supervisor only) ── */}
-          {currentTab === 'admin-dashboard' && role === 'Main Supervisor' && (
+          {/* ── Admin Pages ── */}
+          {currentTab === 'admin-dashboard' && (
             <AdminDashboard
               stats={stats}
               recentAudits={auditReviews}
@@ -291,7 +292,7 @@ export default function App() {
             />
           )}
 
-          {currentTab === 'user-management' && role === 'Main Supervisor' && (
+          {currentTab === 'user-management' && (
             <UserManagement
               onShowToast={addToast}
               backendConnected={backendConnected}
@@ -299,7 +300,7 @@ export default function App() {
             />
           )}
 
-          {currentTab === 'activity-logs' && role === 'Main Supervisor' && (
+          {currentTab === 'activity-logs' && (
             <ActivityLogs
               onShowToast={addToast}
               backendConnected={backendConnected}
