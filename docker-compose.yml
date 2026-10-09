@@ -1,0 +1,83 @@
+services:
+  api:
+    build: .
+    container_name: siteaudit-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres+asyncpg://postgres:postgres@db:5432/siteaudit
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-me}
+      - ALGORITHM=${ALGORITHM:-HS256}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS:-90}
+      - VLM_PROVIDER=${VLM_PROVIDER:-mock}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OCR_PROVIDER=${OCR_PROVIDER:-tesseract}
+      - STORAGE_BACKEND=${STORAGE_BACKEND:-local}
+      - LOCAL_STORAGE_PATH=${LOCAL_STORAGE_PATH:-./uploads}
+      - PROJECT_TIMEZONE=${PROJECT_TIMEZONE:-Asia/Kolkata}
+      - MAX_PHOTO_AGE_HOURS=${MAX_PHOTO_AGE_HOURS:-72}
+      - OVERCLAIM_TOLERANCE_PCT=${OVERCLAIM_TOLERANCE_PCT:-20.0}
+      - REQUIRED_PHOTO_COUNT=${REQUIRED_PHOTO_COUNT:-3}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    container_name: siteaudit-db
+    environment:
+      - POSTGRES_DB=siteaudit
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    build: .
+    container_name: siteaudit-worker
+    environment:
+      - DATABASE_URL=postgres+asyncpg://postgres:postgres@db:5432/siteaudit
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-me}
+      - VLM_PROVIDER=${VLM_PROVIDER:-mock}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OCR_PROVIDER=${OCR_PROVIDER:-tesseract}
+      - STORAGE_BACKEND=${STORAGE_BACKEND:-local}
+      - LOCAL_STORAGE_PATH=${LOCAL_STORAGE_PATH:-./uploads}
+      - PROJECT_TIMEZONE=${PROJECT_TIMEZONE:-Asia/Kolkata}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    command: ["python", "-m", "app.workers.runner"]
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: siteaudit-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@localhost
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  uploads:
