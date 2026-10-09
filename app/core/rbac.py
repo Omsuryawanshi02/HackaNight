@@ -109,7 +109,7 @@ def require_permission(resource: str, action: str):
 
 
 async def get_current_user(
-    authorization: str | None = None,
+    authorization: str | None = Header(default=None),
     db: AsyncSession = Depends(get_db_session),
 ) -> User:
     """Resolve the current user from the Authorization: Bearer <token> header."""
