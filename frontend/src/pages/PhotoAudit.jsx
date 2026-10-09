@@ -31,6 +31,93 @@ export default function PhotoAudit({
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(SAMPLE_PHOTO_PRESETS[0].imageUrl);
   const [fileError, setFileError] = useState('');
+
+  // Live Camera & Geolocation State
+  const [useLiveCamera, setUseLiveCamera] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [cameraCaptured, setCameraCaptured] = useState(false);
+  const [cameraError, setCameraError] = useState('');
+  const [gpsLocation, setGpsLocation] = useState(null);
+  const [photoHash, setPhotoHash] = useState('');
+
+  // Start Live HTML5 Camera
+  const startLiveCamera = async () => {
+    setCameraError('');
+    setCameraCaptured(false);
+
+    // Request GPS location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setGpsLocation({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            timestamp: new Date().toISOString()
+          });
+        },
+        (err) => {
+          console.warn('Geolocation denied or unavailable:', err.message);
+        }
+      );
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      setCameraStream(stream);
+      setTimeout(() => {
+        const videoEl = document.getElementById('live-camera-feed');
+        if (videoEl) videoEl.srcObject = stream;
+      }, 100);
+    } catch (err) {
+      setCameraError('Camera access denied or unavailable on this device.');
+    }
+  };
+
+  // Stop Live Camera Stream
+  const stopLiveCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+  };
+
+  // Capture Photo Snapshot from Video element
+  const capturePhotoFromCamera = async () => {
+    const videoEl = document.getElementById('live-camera-feed');
+    const canvasEl = document.getElementById('camera-canvas');
+    if (!videoEl || !canvasEl) return;
+
+    canvasEl.width = videoEl.videoWidth || 640;
+    canvasEl.height = videoEl.videoHeight || 480;
+    const ctx = canvasEl.getContext('2d');
+    ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+
+    const dataUrl = canvasEl.toDataURL('image/jpeg', 0.9);
+    setPreviewUrl(dataUrl);
+    setCameraCaptured(true);
+    stopLiveCamera();
+
+    // Calculate SHA-256 Hash using Web Crypto API
+    try {
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const arrayBuffer = await blob.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      setPhotoHash(hashHex);
+    } catch (e) {
+      setPhotoHash(`sha256_${Date.now()}`);
+    }
+  };
+
+  const retakeCameraPhoto = () => {
+    setCameraCaptured(false);
+    startLiveCamera();
+  };
   
   // Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -323,68 +410,157 @@ export default function PhotoAudit({
               </div>
             </div>
 
-            {/* Photo Upload Zone */}
+            {/* Photo Upload & Live Camera Zone */}
             <div>
-              <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Site Photograph Upload</label>
-              
-              {!previewUrl ? (
-                <div
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                  className="border-2 border-dashed border-white/12 hover:border-[#FFE14F]/50 rounded-2xl p-6 text-center bg-white/2 hover:bg-white/4 transition cursor-pointer"
-                  onClick={() => document.getElementById('photo-upload-input').click()}
-                >
-                  <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-white">
-                    Drag and drop photograph or <span className="text-[#FFE14F] underline">browse files</span>
-                  </p>
-                  <p className="text-[11px] text-[#8b8c8e] mt-1">Supports JPG, PNG, WebP up to 15MB</p>
-                  <input
-                    id="photo-upload-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold text-[#29231D]">Site Photograph Capture / Upload</label>
+                <div className="flex items-center gap-1 bg-[#EDE5D6] p-0.5 rounded-lg border border-[#E4D8BE]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUseLiveCamera(true);
+                      startLiveCamera();
+                    }}
+                    className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition cursor-pointer ${useLiveCamera ? 'bg-[#D6B238] text-[#29231D]' : 'text-[#6F7889]'}`}
+                  >
+                    📷 Live Camera
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUseLiveCamera(false);
+                      stopLiveCamera();
+                    }}
+                    className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition cursor-pointer ${!useLiveCamera ? 'bg-[#D6B238] text-[#29231D]' : 'text-[#6F7889]'}`}
+                  >
+                    📁 Upload File
+                  </button>
+                </div>
+              </div>
+
+              {/* Live Camera Interface */}
+              {useLiveCamera ? (
+                <div className="rounded-2xl overflow-hidden border border-[#E4D8BE] bg-[#29231D] p-3 text-center space-y-3">
+                  {!cameraCaptured ? (
+                    <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
+                      <video 
+                        id="live-camera-feed"
+                        autoPlay 
+                        playsInline 
+                        muted 
+                        className="w-full h-full object-cover"
+                      />
+                      {cameraError && (
+                        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center p-4 text-center">
+                          <AlertTriangle className="w-8 h-8 text-rose-400 mb-2" />
+                          <p className="text-xs text-rose-200 font-bold">{cameraError}</p>
+                          <p className="text-[10px] text-[#EDE5D6] mt-1">Please allow camera permissions or switch to file upload mode.</p>
+                        </div>
+                      )}
+                      {gpsLocation && (
+                        <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-[#D6B238] font-mono border border-white/10 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[#D6B238]" />
+                          <span>GPS: {gpsLocation.lat.toFixed(4)}, {gpsLocation.lng.toFixed(4)} (±{gpsLocation.accuracy.toFixed(0)}m)</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
+                      <img src={previewUrl} alt="Captured" className="w-full h-full object-cover" />
+                      <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Check className="w-3 h-3" /> Photo Captured Live
+                      </div>
+                    </div>
+                  )}
+
+                  <canvas id="camera-canvas" className="hidden" />
+
+                  <div className="flex items-center justify-center gap-2">
+                    {!cameraCaptured ? (
+                      <button
+                        type="button"
+                        onClick={capturePhotoFromCamera}
+                        disabled={!!cameraError}
+                        className="btn-gold text-xs shadow-md"
+                      >
+                        <Camera className="w-4 h-4" />
+                        <span>Take Snapshot</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={retakeCameraPhoto}
+                        className="btn-secondary-sandstone text-xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Retake Snapshot</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : (
-                <div className="relative rounded-2xl overflow-hidden border border-white/12 bg-slate-950 group">
-                  <img
-                    src={previewUrl}
-                    alt="Uploaded preview"
-                    className="w-full h-56 object-cover opacity-90 group-hover:opacity-100 transition"
-                  />
-                  <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-[#192853]/80 backdrop-blur-md rounded-xl p-1 border border-white/10">
-                    <button
-                      onClick={() => document.getElementById('photo-upload-input').click()}
-                      className="px-2 py-1 text-[11px] font-medium text-white hover:text-[#FFE14F] transition cursor-pointer"
-                      title="Replace image"
-                    >
-                      Replace
-                    </button>
-                    <button
-                      onClick={handleRemoveImage}
-                      className="p-1 text-rose-400 hover:text-rose-300 transition cursor-pointer"
-                      title="Remove image"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                /* File Upload Zone */
+                !previewUrl ? (
+                  <div
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    className="border-2 border-dashed border-[#E4D8BE] hover:border-[#D6B238] rounded-2xl p-6 text-center bg-[#FFFDF8] hover:bg-[#EDE5D6]/30 transition cursor-pointer shadow-xs"
+                    onClick={() => document.getElementById('photo-upload-input').click()}
+                  >
+                    <UploadCloud className="w-8 h-8 text-[#D6B238] mx-auto mb-2" />
+                    <p className="text-xs font-bold text-[#29231D]">
+                      Drag & drop site photo or <span className="text-[#D6B238] underline">browse files</span>
+                    </p>
+                    <p className="text-[11px] text-[#6F7889] mt-1">Supports JPG, PNG, WebP up to 15MB</p>
+                    <input
+                      id="photo-upload-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
                   </div>
-                  <input
-                    id="photo-upload-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <div className="absolute bottom-2 left-2 bg-[#192853]/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-slate-300 font-mono border border-white/10">
-                    {selectedFile ? `${selectedFile.name} (${(selectedFile.size / 1024 / 1024).toFixed(2)} MB)` : 'Preset Demonstration Photograph'}
+                ) : (
+                  <div className="relative rounded-2xl overflow-hidden border border-[#E4D8BE] bg-[#29231D] group shadow-xs">
+                    <img
+                      src={previewUrl}
+                      alt="Uploaded preview"
+                      className="w-full h-56 object-cover opacity-90 group-hover:opacity-100 transition"
+                    />
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-[#29231D]/90 backdrop-blur-md rounded-xl p-1 border border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('photo-upload-input').click()}
+                        className="px-2 py-1 text-[11px] font-bold text-[#FFFDF8] hover:text-[#D6B238] transition cursor-pointer"
+                      >
+                        Replace
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="p-1 text-rose-400 hover:text-rose-300 transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <input
+                      id="photo-upload-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    {photoHash && (
+                      <div className="absolute bottom-2 left-2 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-[#D6B238] font-mono border border-white/10">
+                        SHA-256: {photoHash.substring(0, 16)}...
+                      </div>
+                    )}
                   </div>
-                </div>
+                )
               )}
 
               {fileError && (
-                <p className="text-xs text-rose-400 mt-1.5 flex items-center gap-1">
+                <p className="text-xs text-rose-600 font-semibold mt-1.5 flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>{fileError}</span>
                 </p>

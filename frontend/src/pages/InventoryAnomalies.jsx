@@ -47,90 +47,90 @@ export default function InventoryAnomalies({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-[#29231D]">
       {/* Top Banner */}
-      <div className="glass-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="porcelain-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFE14F]/15 text-[#FFE14F] border border-[#FFE14F]/30 uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D6B238]/20 text-[#29231D] border border-[#D6B238]/40 uppercase tracking-wider font-['Outfit']">
               Statistical Anomaly Detection
             </span>
-            <span className="text-xs text-[#8b8c8e]">• Threshold & Heuristic Rule Engine</span>
+            <span className="text-xs text-[#6F7889] font-medium">• Threshold & Heuristic Rule Engine</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mt-1.5 tracking-tight">Inventory & Delivery Anomaly Monitor</h1>
-          <p className="text-xs text-[#8b8c8e] mt-1">
+          <h1 className="text-2xl font-black text-[#29231D] mt-1.5 tracking-tight font-['Outfit']">Inventory & Delivery Anomaly Monitor</h1>
+          <p className="text-xs text-[#6F7889] font-medium mt-1">
             Flags unusual material consumption spikes, recurring delivery tare shortages, and missing documentary compliance.
           </p>
         </div>
 
         {/* Severity Quick Pills */}
         <div className="flex items-center gap-2">
-          <div className="px-3 py-1.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-rose-400"></span>
+          <div className="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-600"></span>
             <span>High: {highCount}</span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-[#FFE14F]/15 border border-[#FFE14F]/30 text-[#FFE14F] text-xs font-semibold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#FFE14F]"></span>
+          <div className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
             <span>Med: {mediumCount}</span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+          <div className="px-3 py-1.5 rounded-xl bg-[#EDE5D6] border border-[#E4D8BE] text-[#29231D] text-xs font-bold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#6F7889]"></span>
             <span>Low: {lowCount}</span>
           </div>
         </div>
       </div>
 
       {/* Transparent Model & Rule Engine Disclaimer Box */}
-      <div className="p-4 rounded-xl bg-white/3 border border-white/8 flex items-start gap-3 backdrop-blur-md">
-        <Info className="w-5 h-5 text-[#FFE14F] shrink-0 mt-0.5" />
-        <div className="text-xs text-slate-300 leading-relaxed">
-          <span className="font-bold text-white">Transparent Engineering Thresholds: </span>
+      <div className="p-4 rounded-xl bg-[#EDE5D6]/50 border border-[#E4D8BE] flex items-start gap-3">
+        <Info className="w-5 h-5 text-[#8f7215] shrink-0 mt-0.5" />
+        <div className="text-xs text-[#29231D] leading-relaxed font-medium">
+          <span className="font-bold text-[#29231D]">Transparent Engineering Thresholds: </span>
           Current flags are calculated using transparent physical tolerances (±5% wastage threshold, consecutive tare deviation rules, and NABL test requirements). Architecture is structured for backend Isolation Forest anomaly modeling.
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="glass-card p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="porcelain-card p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#6F7889] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search anomalies by ID, material, or project..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white placeholder-[#8b8c8e] focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] font-medium"
           />
         </div>
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1.5 glass-chip rounded-xl px-2.5 py-1.5 text-xs">
-            <Filter className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[#8b8c8e] font-medium">Severity:</span>
+          <div className="flex items-center gap-1.5 bg-[#EDE5D6] border border-[#E4D8BE] rounded-xl px-3 py-1.5 text-xs">
+            <Filter className="w-3.5 h-3.5 text-[#6F7889]" />
+            <span className="text-[#6F7889] font-bold">Severity:</span>
             <select
               value={selectedSeverity}
               onChange={(e) => setSelectedSeverity(e.target.value)}
-              className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#29231D] font-bold focus:outline-none cursor-pointer"
             >
-              <option value="ALL" className="bg-[#1e3264] text-white">All Severities</option>
-              <option value="High" className="bg-[#1e3264] text-white">High Severity</option>
-              <option value="Medium" className="bg-[#1e3264] text-white">Medium Severity</option>
-              <option value="Low" className="bg-[#1e3264] text-white">Low Severity</option>
+              <option value="ALL" className="bg-[#FFFDF8] text-[#29231D]">All Severities</option>
+              <option value="High" className="bg-[#FFFDF8] text-[#29231D]">High Severity</option>
+              <option value="Medium" className="bg-[#FFFDF8] text-[#29231D]">Medium Severity</option>
+              <option value="Low" className="bg-[#FFFDF8] text-[#29231D]">Low Severity</option>
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5 glass-chip rounded-xl px-2.5 py-1.5 text-xs">
-            <span className="text-[#8b8c8e] font-medium">Status:</span>
+          <div className="flex items-center gap-1.5 bg-[#EDE5D6] border border-[#E4D8BE] rounded-xl px-3 py-1.5 text-xs">
+            <span className="text-[#6F7889] font-bold">Status:</span>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#29231D] font-bold focus:outline-none cursor-pointer"
             >
-              <option value="ALL" className="bg-[#1e3264] text-white">All Statuses</option>
-              <option value="Open" className="bg-[#1e3264] text-white">Open</option>
-              <option value="Under Investigation" className="bg-[#1e3264] text-white">Under Investigation</option>
-              <option value="Resolved" className="bg-[#1e3264] text-white">Resolved</option>
+              <option value="ALL" className="bg-[#FFFDF8] text-[#29231D]">All Statuses</option>
+              <option value="Open" className="bg-[#FFFDF8] text-[#29231D]">Open</option>
+              <option value="Under Investigation" className="bg-[#FFFDF8] text-[#29231D]">Under Investigation</option>
+              <option value="Resolved" className="bg-[#FFFDF8] text-[#29231D]">Resolved</option>
             </select>
           </div>
         </div>
@@ -139,19 +139,19 @@ export default function InventoryAnomalies({
       {/* Anomalies Cards List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredAnomalies.length === 0 ? (
-          <div className="col-span-2 glass-card border-dashed p-8 text-center text-xs text-[#8b8c8e]">
+          <div className="col-span-2 porcelain-card border-dashed p-8 text-center text-xs text-[#6F7889] font-medium">
             No inventory anomalies match your active filters.
           </div>
         ) : (
           filteredAnomalies.map((anom) => (
             <div
               key={anom.id}
-              className={`glass-card p-6 transition-all hover:-translate-y-0.5 flex flex-col justify-between ${
+              className={`porcelain-card p-6 transition-all hover:-translate-y-0.5 flex flex-col justify-between ${
                 anom.severity === 'High' 
-                  ? 'border-rose-500/25 hover:border-rose-500/40' 
+                  ? 'border-rose-300' 
                   : anom.severity === 'Medium' 
-                  ? 'border-[#FFE14F]/25 hover:border-[#FFE14F]/40' 
-                  : 'border-white/8 hover:border-white/15'
+                  ? 'border-amber-300' 
+                  : 'border-[#E4D8BE]'
               }`}
             >
               <div>
@@ -159,36 +159,36 @@ export default function InventoryAnomalies({
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-white">{anom.id}</span>
+                      <span className="font-mono text-xs font-bold text-[#29231D]">{anom.id}</span>
                       <StatusBadge status={anom.severity} size="sm" />
-                      <span className="text-[10px] text-[#8b8c8e]">• {anom.detectedAt}</span>
+                      <span className="text-[10px] text-[#6F7889] font-semibold">• {anom.detectedAt}</span>
                     </div>
-                    <h3 className="text-sm font-bold text-white mt-1.5 tracking-tight">{anom.material}</h3>
-                    <p className="text-xs text-[#8b8c8e]">{anom.project}</p>
+                    <h3 className="text-sm font-bold text-[#29231D] mt-1.5 tracking-tight font-['Outfit']">{anom.material}</h3>
+                    <p className="text-xs text-[#6F7889] font-medium">{anom.project}</p>
                   </div>
 
-                  <span className="text-xs px-2.5 py-1 rounded-full font-semibold border bg-white/4 text-slate-300 border-white/8">
+                  <span className="text-xs px-2.5 py-1 rounded-full font-bold border bg-[#EDE5D6] text-[#29231D] border-[#E4D8BE]">
                     {anom.status}
                   </span>
                 </div>
 
                 {/* Variance Strip */}
-                <div className="mt-4 grid grid-cols-3 gap-2 p-3 bg-white/3 rounded-xl text-center border border-white/6">
+                <div className="mt-4 grid grid-cols-3 gap-2 p-3 bg-[#EDE5D6]/40 rounded-xl text-center border border-[#E4D8BE]">
                   <div>
-                    <span className="text-[10px] text-[#8b8c8e] font-medium block">Expected</span>
-                    <span className="text-xs font-bold text-white block truncate" title={anom.expectedValue}>
+                    <span className="text-[10px] text-[#6F7889] font-bold block">Expected</span>
+                    <span className="text-xs font-bold text-[#29231D] block truncate" title={anom.expectedValue}>
                       {anom.expectedValue}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#8b8c8e] font-medium block">Observed</span>
-                    <span className="text-xs font-bold text-white block truncate" title={anom.observedValue}>
+                    <span className="text-[10px] text-[#6F7889] font-bold block">Observed</span>
+                    <span className="text-xs font-bold text-[#29231D] block truncate" title={anom.observedValue}>
                       {anom.observedValue}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#8b8c8e] font-medium block">Variance</span>
-                    <span className={`text-xs font-bold block ${anom.severity === 'High' ? 'text-rose-400' : 'text-[#FFE14F]'}`}>
+                    <span className="text-[10px] text-[#6F7889] font-bold block">Variance</span>
+                    <span className={`text-xs font-bold block ${anom.severity === 'High' ? 'text-rose-600' : 'text-[#8f7215]'}`}>
                       {anom.variance}
                     </span>
                   </div>
@@ -196,29 +196,29 @@ export default function InventoryAnomalies({
 
                 {/* Explanation */}
                 <div className="mt-3.5">
-                  <h4 className="text-[11px] font-bold text-[#c8c8cb] uppercase tracking-wider">
+                  <h4 className="text-[11px] font-bold text-[#6F7889] uppercase tracking-wider font-['Outfit']">
                     {anom.anomalyType}
                   </h4>
-                  <p className="text-xs text-[#8b8c8e] mt-1 leading-relaxed">
+                  <p className="text-xs text-[#29231D] mt-1 leading-relaxed font-medium">
                     {anom.explanation}
                   </p>
                 </div>
 
                 {/* Action */}
-                <div className="mt-3.5 p-3 rounded-xl bg-white/3 border border-white/8 text-xs text-slate-200">
-                  <span className="font-bold text-[#FFE14F]">Recommended Action: </span>
+                <div className="mt-3.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-[#29231D]">
+                  <span className="font-bold text-[#8f7215]">Recommended Action: </span>
                   {anom.recommendedAction}
                 </div>
               </div>
 
               {/* Status Update Dropdown */}
-              <div className="mt-4 pt-3.5 border-t border-white/6 flex items-center justify-between gap-2">
+              <div className="mt-4 pt-3.5 border-t border-[#E4D8BE] flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-[#8b8c8e] font-medium">Review Status:</span>
+                  <span className="text-[11px] text-[#6F7889] font-bold">Review Status:</span>
                   <select
                     value={anom.status}
                     onChange={(e) => handleStatusChange(anom.id, e.target.value)}
-                    className="text-xs font-semibold bg-[#1e3264] border border-white/10 rounded-lg px-2.5 py-1 text-white focus:outline-none cursor-pointer"
+                    className="text-xs font-bold bg-[#FFFDF8] border border-[#E4D8BE] rounded-lg px-2.5 py-1 text-[#29231D] focus:outline-none cursor-pointer"
                   >
                     <option value="Open">Open</option>
                     <option value="Under Investigation">Under Investigation</option>
@@ -229,7 +229,7 @@ export default function InventoryAnomalies({
                 {onNavigateToAuditorReview && (
                   <button
                     onClick={() => onNavigateToAuditorReview(anom)}
-                    className="text-xs font-semibold text-[#FFE14F] hover:text-white flex items-center gap-1 transition cursor-pointer"
+                    className="text-xs font-bold text-[#8f7215] hover:underline flex items-center gap-1 transition cursor-pointer"
                   >
                     <span>Escalate to Review</span>
                     <ArrowRight className="w-3.5 h-3.5" />

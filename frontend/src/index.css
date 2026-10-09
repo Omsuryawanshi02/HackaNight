@@ -2,24 +2,19 @@
 
 @layer base {
   :root {
-    --bg-stage: #e9e4d7;
-    --navy-blue: #192853;
-    --bg-light: #e9e4d7;
-    --card-bg: rgba(25, 40, 83, 0.82);
-    --card-border: rgba(236, 244, 247, 0.12);
-    --card-shadow: 0 22px 60px rgba(0, 0, 0, 0.40);
+    /* Core Palette Tokens - Master Prompt Specifications */
+    --gold: #D6B238;          /* Champagne Gold - Primary action buttons, active navigation, key highlights */
+    --olive: #727C3E;         /* Olive Green - Verified evidence, completed milestones, positive outcomes */
+    --ivory: #F7F3EA;         /* Warm Ivory - Main page backgrounds, workspace surfaces */
+    --porcelain: #FFFDF8;     /* Porcelain White - Cards, tables, forms, modals */
+    --charcoal: #29231D;      /* Espresso Charcoal - Main headings, primary body text, nav labels */
+    --beige: #EDE5D6;         /* Champagne Beige - Secondary surfaces, table headers, filter panels */
+    --sandstone: #E4D8BE;     /* Sandstone Border - Card outlines, form field borders, table separators */
+    --slate: #6F7889;         /* Muted Slate - Secondary text, timestamps, metadata */
 
-    --text-primary: #ffffff;
-    --text-muted: #8b8c8e;
-    --text-sub: #c8c8cb;
-
-    /* Updated Palette */
-    --accent-primary: #FFE14F;
-    --accent-orange-1: #FFE14F;
-    --accent-orange-2: #FFE14F;
-    --accent-orange-3: #FFE14F;
-
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Typography */
+    --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   * {
@@ -29,18 +24,37 @@
   body {
     margin: 0;
     font-family: var(--font-sans);
-    background-color: #e9e4d7;
-    color: #ffffff;
+    background-color: #F7F3EA;
+    color: var(--charcoal);
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: geometricPrecision;
     min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(156, 134, 206, 0.12), transparent),
-      radial-gradient(ellipse 60% 40% at 85% 15%, rgba(255, 225, 79, 0.08), transparent),
-      radial-gradient(ellipse 60% 40% at 15% 85%, rgba(59, 130, 246, 0.06), transparent);
-    background-attachment: fixed;
+    position: relative;
+  }
+
+  /* Soft Blurred Construction Site Background Image */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    z-index: -1;
+    background-image: linear-gradient(180deg, rgba(247, 243, 234, 0.15) 0%, rgba(237, 229, 214, 0.25) 100%), url('/bg-construction.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(2px);
+    transform: scale(1.03);
+    pointer-events: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--charcoal);
   }
 
   #root {
@@ -55,70 +69,150 @@
   }
 }
 
-/* Glass Card styling class */
+/* Glassmorphism Dark Sidebar Panel (as seen in reference screenshot) */
+.glass-sidebar {
+  background: rgba(41, 35, 29, 0.94);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-right: 1px solid rgba(228, 216, 190, 0.3);
+  box-shadow: 6px 0 35px rgba(0, 0, 0, 0.28);
+}
+
+/* Glassmorphism Header Bar */
+.glass-header {
+  background: rgba(255, 253, 248, 0.70) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  border-bottom: 1px solid rgba(228, 216, 190, 0.6) !important;
+  box-shadow: 0 4px 20px rgba(41, 35, 29, 0.08);
+}
+
+/* Active Navigation Capsule in Champagne Gold */
+.nav-item-active {
+  background: #D6B238 !important;
+  color: #29231D !important;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(214, 178, 56, 0.45);
+}
+
+/* High-Contrast Glassmorphism Porcelain & Glass Card Styling */
+.porcelain-card,
 .glass-card {
-  background: rgba(25, 40, 83, 0.82);
-  backdrop-filter: blur(26px) saturate(115%);
-  -webkit-backdrop-filter: blur(26px) saturate(115%);
-  border: 1px solid rgba(214, 228, 255, 0.11);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 50px rgba(0, 0, 0, 0.35);
-  border-radius: 18px;
+  background: rgba(255, 253, 248, 0.65) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  border: 1px solid rgba(228, 216, 190, 0.7) !important;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(41, 35, 29, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  color: #29231D !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-card-subtle {
-  background: rgba(20, 34, 72, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+.porcelain-card:hover,
+.glass-card:hover {
+  background: rgba(255, 253, 248, 0.82) !important;
+  box-shadow: 0 12px 38px 0 rgba(41, 35, 29, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  border-color: #D6B238 !important;
 }
 
-/* Glass Chip Pill */
+/* Secondary Glass Surface */
+.glass-surface-beige,
 .glass-chip {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.088) 0%, rgba(255, 255, 255, 0.050) 45%, rgba(255, 255, 255, 0.038) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: #c8c8cb;
+  background: rgba(237, 229, 214, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #E4D8BE;
+  color: #29231D;
+}
+
+/* Champagne Gold Primary Action Button */
+.btn-gold {
+  background: #D6B238;
+  color: #29231D;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.6rem 1.25rem;
+  box-shadow: 0 4px 14px rgba(214, 178, 56, 0.32);
   transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.glass-chip:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.14);
+.btn-gold:hover {
+  background: #e4c042;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(214, 178, 56, 0.42);
 }
 
-/* Primary Send/Action Accent */
-.btn-fastshot-primary {
-  background: linear-gradient(163deg, #FFE14F 0%, #FFE14F 46%, #FFE14F 100%);
-  color: #192853;
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+/* Olive Green Button for Approvals/Verified */
+.btn-olive {
+  background: #727C3E;
+  color: #FFFDF8;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.6rem 1.25rem;
+  box-shadow: 0 4px 14px rgba(114, 124, 62, 0.28);
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-olive:hover {
+  background: #808c46;
+  transform: translateY(-1px);
+}
+
+/* Sandstone Border Secondary Button */
+.btn-secondary-sandstone {
+  background: rgba(237, 229, 214, 0.75);
+  backdrop-filter: blur(8px);
+  color: #29231D;
   font-weight: 600;
-  box-shadow: 0 4px 16px rgba(255, 225, 79, 0.32);
-  transition: filter 0.18s ease, transform 0.1s ease;
+  border: 1px solid #E4D8BE;
+  border-radius: 10px;
+  padding: 0.55rem 1.15rem;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.btn-fastshot-primary:hover {
-  filter: brightness(1.08);
+.btn-secondary-sandstone:hover {
+  background: #EDE5D6;
 }
 
-.btn-fastshot-primary:active {
-  transform: scale(0.97);
+/* Custom Status Badges */
+.badge-verified {
+  background-color: rgba(114, 124, 62, 0.18);
+  backdrop-filter: blur(6px);
+  color: #727C3E;
+  border: 1px solid rgba(114, 124, 62, 0.35);
+  font-weight: 600;
 }
 
-/* Dark Button */
-.btn-fastshot-dark {
-  background: linear-gradient(180deg, #2a3f6e 0%, #192853 100%);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 14px rgba(0, 0, 0, 0.28);
-  transition: filter 0.18s ease, transform 0.1s ease;
+.badge-pending {
+  background-color: rgba(214, 178, 56, 0.22);
+  backdrop-filter: blur(6px);
+  color: #8f7215;
+  border: 1px solid rgba(214, 178, 56, 0.4);
+  font-weight: 600;
 }
 
-.btn-fastshot-dark:hover {
-  filter: brightness(1.15);
-}
-
-.btn-fastshot-dark:active {
-  transform: translateY(1px);
+.badge-flagged {
+  background-color: rgba(220, 38, 38, 0.15);
+  backdrop-filter: blur(6px);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  font-weight: 600;
 }
 
 /* Custom scrollbars */
@@ -128,14 +222,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #e9e4d7;
+  background: rgba(247, 243, 234, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a3f6e;
+  background: #E4D8BE;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a5090;
+  background: #D6B238;
 }

@@ -1,69 +1,69 @@
-// BuildVerify AI - API Service with Authentication & RBAC Support
-// Connects to Python Flask REST API at http://127.0.0.1:5000
+// SiteSure AI - API Service with Authentication & RBAC Support
+// Connects to FastAPI REST API at http://127.0.0.1:8000
 
-export const DEFAULT_API_BASE_URL = 'http://127.0.0.1:5000';
+export const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000';
 
 export const getApiBaseUrl = () => {
-  return localStorage.getItem('buildverify_api_url') || DEFAULT_API_BASE_URL;
+  return localStorage.getItem('sitesure_api_url') || DEFAULT_API_BASE_URL;
 };
 
 export const setApiBaseUrl = (url) => {
-  localStorage.setItem('buildverify_api_url', url);
+  localStorage.setItem('sitesure_api_url', url);
 };
 
 export const getAuthToken = () => {
-  return localStorage.getItem('buildverify_auth_token') || null;
+  return localStorage.getItem('sitesure_auth_token') || null;
 };
 
 export const setAuthToken = (token) => {
   if (token) {
-    localStorage.setItem('buildverify_auth_token', token);
+    localStorage.setItem('sitesure_auth_token', token);
   } else {
-    localStorage.removeItem('buildverify_auth_token');
+    localStorage.removeItem('sitesure_auth_token');
   }
 };
 
 export const clearAuthToken = () => {
-  localStorage.removeItem('buildverify_auth_token');
-  localStorage.removeItem('buildverify_cached_user');
+  localStorage.removeItem('sitesure_auth_token');
+  localStorage.removeItem('sitesure_cached_user');
 };
 
 export const MOCK_USERS = {
-  'supervisor@buildverify.ai': {
+  'supervisor@sitesure.ai': {
     id: 'USR-SUP-01',
     full_name: 'Rajesh Varma',
-    email: 'supervisor@buildverify.ai',
-    role: 'Main Supervisor',
+    email: 'supervisor@sitesure.ai',
+    role: 'SITE_SUPERVISOR',
     employee_id: 'EMP-SUP-01',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
   },
-  'contractor@buildverify.ai': {
-    id: 'USR-CON-01',
-    full_name: 'Er. Rajesh Sharma',
-    email: 'contractor@buildverify.ai',
-    role: 'Contractor',
-    employee_id: 'EMP-CON-04',
-    must_change_password: false,
-    assigned_project_ids: ['PRJ-101', 'PRJ-102']
-  },
-  'store@buildverify.ai': {
+  'store@sitesure.ai': {
     id: 'USR-STR-01',
     full_name: 'Suresh Mehta',
-    email: 'store@buildverify.ai',
-    role: 'Shopkeeper',
+    email: 'store@sitesure.ai',
+    role: 'STORE_INCHARGE',
     employee_id: 'EMP-STR-09',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101']
   },
-  'auditor@buildverify.ai': {
+  'auditor@sitesure.ai': {
     id: 'USR-AUD-01',
     full_name: 'Pooja Iyer, PE',
-    email: 'auditor@buildverify.ai',
-    role: 'Auditor',
+    email: 'auditor@sitesure.ai',
+    role: 'AUDIT_MANAGER',
     employee_id: 'EMP-AUD-02',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103']
+  },
+  'admin@sitesure.ai': {
+    id: 'USR-ADM-01',
+    full_name: 'Vikramaditya Rao',
+    email: 'admin@sitesure.ai',
+    role: 'ADMIN',
+    employee_id: 'EMP-ADM-00',
+    must_change_password: false,
+    assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
   }
 };
 
@@ -71,10 +71,10 @@ const getOrCreateMockUser = (email) => {
   const norm = email.toLowerCase().trim();
   if (MOCK_USERS[norm]) return MOCK_USERS[norm];
 
-  let inferredRole = 'Main Supervisor';
-  if (norm.includes('contractor') || norm.includes('builder')) inferredRole = 'Contractor';
-  else if (norm.includes('store') || norm.includes('shop')) inferredRole = 'Shopkeeper';
-  else if (norm.includes('audit')) inferredRole = 'Auditor';
+  let inferredRole = 'SITE_SUPERVISOR';
+  if (norm.includes('store') || norm.includes('shop')) inferredRole = 'STORE_INCHARGE';
+  else if (norm.includes('audit') || norm.includes('manager')) inferredRole = 'AUDIT_MANAGER';
+  else if (norm.includes('admin')) inferredRole = 'ADMIN';
 
   const namePart = norm.split('@')[0].replace(/[._-]/g, ' ');
   const capitalizedName = namePart ? (namePart.charAt(0).toUpperCase() + namePart.slice(1)) : 'Enterprise User';
@@ -110,7 +110,7 @@ export const checkBackendHealth = async () => {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`${baseUrl}/api/health`, {
+    const res = await fetch(`${baseUrl}/health`, {
       method: 'GET',
       signal: controller.signal
     });

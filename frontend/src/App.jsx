@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Toast from './components/Toast';
 
 // Pages
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -42,7 +43,7 @@ const DEFAULT_TAB_FOR_ROLE = {
 };
 
 const ALL_ACCESSIBLE_TABS = [
-  'admin-dashboard', 'dashboard', 'user-management', 'activity-logs',
+  'landing', 'admin-dashboard', 'dashboard', 'user-management', 'activity-logs',
   'photo-audit', 'material-audit', 'inventory-anomalies',
   'auditor-review', 'audit-reports', 'settings'
 ];
@@ -61,7 +62,8 @@ export default function App() {
   const { user, role, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const [currentTab, setCurrentTab] = useState('dashboard');
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [unauthView, setUnauthView] = useState('landing');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [backendConnected, setBackendConnected] = useState(false);
 
   // Core App Data
@@ -225,7 +227,7 @@ export default function App() {
   // ─── Auth Loading Screen ───────────────────────────────────────────
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#e9e4d7] flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 relative">
             <svg className="w-full h-full animate-pulse" viewBox="0 0 34 34" fill="none">
@@ -240,22 +242,34 @@ export default function App() {
     );
   }
 
-  // ─── Login Screen ──────────────────────────────────────────────────
+  // ─── Unauthenticated Screens (Public Landing & Login) ──────────────
   if (!isAuthenticated) {
+    if (unauthView === 'login') {
+      return (
+        <>
+          <Toast toasts={toasts} onDismiss={dismissToast} />
+          <Login onBackToLanding={() => setUnauthView('landing')} />
+        </>
+      );
+    }
+
     return (
       <>
         <Toast toasts={toasts} onDismiss={dismissToast} />
-        <Login />
+        <LandingPage
+          onNavigateToLogin={() => setUnauthView('login')}
+          onNavigateToApp={() => setUnauthView('login')}
+        />
       </>
     );
   }
 
   // ─── Authenticated App Shell ───────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#e9e4d7] flex flex-col font-sans text-white antialiased selection:bg-[#FFE14F]/20 selection:text-[#FFE14F]">
+    <div className="min-h-screen bg-transparent flex flex-col font-sans text-white antialiased selection:bg-[#FFE14F]/20 selection:text-[#FFE14F]">
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Persistent Left Sidebar */}
+      {/* Persistent / Toggleable Left Sidebar */}
       <Sidebar
         currentTab={currentTab}
         onSelectTab={handleSetTab}
@@ -263,16 +277,16 @@ export default function App() {
           anomalies: anomalies.filter(a => a.status === 'Open' || a.status === 'Under Investigation').length,
           pendingReviews: auditReviews.filter(r => r.status === 'Pending Review').length
         }}
-        isOpen={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        isOpen={isSidebarOpen}
+        onCloseMobile={() => setIsSidebarOpen(false)}
         backendConnected={backendConnected}
       />
 
       {/* Main Content Area */}
-      <div className="lg:pl-64 flex-1 flex flex-col min-w-0">
+      <div className={`${isSidebarOpen ? 'lg:pl-64' : 'lg:pl-0'} flex-1 flex flex-col min-w-0 transition-all duration-200`}>
         {/* Sticky Top Header */}
         <Header
-          onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           projects={projects}
           selectedProjectId={selectedProjectId}
           onSelectProject={setSelectedProjectId}
@@ -282,6 +296,16 @@ export default function App() {
 
         {/* Page Content Viewport */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {/* ── Public Landing Overview (Authenticated View) ── */}
+          {currentTab === 'landing' && (
+            <div className="-m-4 sm:-m-6 lg:-m-8">
+              <LandingPage
+                onNavigateToLogin={() => handleSetTab('dashboard')}
+                onNavigateToApp={() => handleSetTab('dashboard')}
+              />
+            </div>
+          )}
+
           {/* ── Admin Pages ── */}
           {currentTab === 'admin-dashboard' && (
             <AdminDashboard

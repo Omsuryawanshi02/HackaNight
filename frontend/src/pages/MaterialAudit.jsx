@@ -7,7 +7,9 @@ import {
   AlertTriangle, 
   CheckCircle2, 
   Upload, 
-  Info
+  Info,
+  Check,
+  Package
 } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import DataTable from '../components/DataTable';
@@ -261,20 +263,20 @@ export default function MaterialAudit({
 
   // Table Columns
   const columns = [
-    { header: 'Audit ID', accessor: 'id', cell: (r) => <span className="font-mono font-medium text-white">{r.id}</span> },
+    { header: 'Audit ID', accessor: 'id', cell: (r) => <span className="font-mono font-medium text-[#29231D]">{r.id}</span> },
     { 
       header: 'Material & Supplier', 
       cell: (r) => (
         <div>
-          <p className="font-bold text-white">{r.material}</p>
-          <p className="text-[11px] text-[#8b8c8e]">{r.supplier} • Challan #{r.challanNo}</p>
+          <p className="font-bold text-[#29231D]">{r.material}</p>
+          <p className="text-[11px] text-[#6F7889]">{r.supplier} • Challan #{r.challanNo}</p>
         </div>
       ) 
     },
     { 
       header: 'Delivery Discrepancy', 
       cell: (r) => (
-        <span className={`font-semibold ${r.deliveryDiscrepancy < 0 ? 'text-[#FFE14F]' : 'text-slate-300'}`}>
+        <span className={`font-semibold ${r.deliveryDiscrepancy < 0 ? 'text-[#8f7215]' : 'text-[#29231D]'}`}>
           {r.deliveryDiscrepancy > 0 ? `+${r.deliveryDiscrepancy}` : r.deliveryDiscrepancy} {r.unit}
         </span>
       ) 
@@ -283,10 +285,10 @@ export default function MaterialAudit({
       header: 'Consumption Variance', 
       cell: (r) => (
         <div>
-          <span className={`font-bold ${r.consumptionVariance > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+          <span className={`font-bold ${r.consumptionVariance > 0 ? 'text-rose-600' : 'text-[#727C3E]'}`}>
             {r.consumptionVariance > 0 ? `+${r.consumptionVariance}` : r.consumptionVariance} {r.unit}
           </span>
-          <span className="text-[10px] text-[#8b8c8e] block">
+          <span className="text-[10px] text-[#6F7889] block">
             ({r.variancePercent > 0 ? `+${r.variancePercent}%` : `${r.variancePercent}%`})
           </span>
         </div>
@@ -302,28 +304,28 @@ export default function MaterialAudit({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="glass-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="porcelain-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFE14F]/15 text-[#FFE14F] border border-[#FFE14F]/30 uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D6B238]/20 text-[#29231D] border border-[#D6B238]/40 uppercase tracking-wider">
               Inventory Reconciliation Engine
             </span>
-            <span className="text-xs text-[#8b8c8e]">• Standard Method of Measurement</span>
+            <span className="text-xs text-[#6F7889]">• Standard Method of Measurement</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mt-1.5 tracking-tight">Material Delivery Audit & Physical Stock Reconciliation</h1>
-          <p className="text-xs text-[#8b8c8e] mt-1">
+          <h1 className="text-2xl font-bold text-[#29231D] mt-1.5 tracking-tight font-['Outfit']">Material Delivery Audit & Physical Stock Reconciliation</h1>
+          <p className="text-xs text-[#6F7889] mt-1">
             Audit challan quantities against received stock, calculate physical site depletion, and detect consumption variance.
           </p>
         </div>
 
         {/* Preset Selector */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-white/4 border border-white/8 rounded-xl p-1.5">
-          <span className="text-[11px] font-semibold text-[#8b8c8e] px-2">Sample Presets:</span>
+        <div className="flex flex-wrap items-center gap-1.5 bg-[#EDE5D6] border border-[#E4D8BE] rounded-xl p-1.5">
+          <span className="text-[11px] font-semibold text-[#6F7889] px-2">Sample Presets:</span>
           {MATERIAL_PRESETS.map((p) => (
             <button
               key={p.id}
               onClick={() => handleLoadPreset(p)}
-              className="px-2.5 py-1 text-xs font-medium rounded-lg glass-chip transition cursor-pointer"
+              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#FFFDF8] hover:bg-[#D6B238] hover:text-[#29231D] border border-[#E4D8BE] transition cursor-pointer text-[#29231D]"
             >
               {p.label}
             </button>
@@ -335,15 +337,15 @@ export default function MaterialAudit({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Form */}
         <div className="lg:col-span-7 space-y-5">
-          <div className="glass-card p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/6 pb-3">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#FFE14F]" />
+          <div className="porcelain-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E4D8BE] pb-3">
+              <h2 className="text-sm font-bold text-[#29231D] flex items-center gap-2 font-['Outfit']">
+                <Package className="w-4 h-4 text-[#D6B238]" />
                 <span>Delivery Challan & Inventory Input</span>
               </h2>
 
-              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 glass-chip rounded-xl text-xs font-medium cursor-pointer transition">
-                <Upload className="w-3.5 h-3.5" />
+              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 btn-secondary-sandstone text-xs font-medium cursor-pointer transition">
+                <Upload className="w-3.5 h-3.5 text-[#D6B238]" />
                 <span>{ocrLoading ? 'Scanning Challan OCR...' : 'Scan Challan (OCR)'}</span>
                 <input
                   type="file"
@@ -358,145 +360,145 @@ export default function MaterialAudit({
             {/* General Info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Project</label>
+                <label className="block text-xs font-semibold text-[#6F7889] mb-1">Project</label>
                 <input
                   type="text"
                   name="projectName"
                   value={formData.projectName}
                   onChange={handleChange}
-                  className="w-full px-3 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+                  className="w-full px-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Material Name</label>
+                <label className="block text-xs font-semibold text-[#6F7889] mb-1">Material Name</label>
                 <input
                   type="text"
                   name="material"
                   value={formData.material}
                   onChange={handleChange}
-                  className="w-full px-3 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+                  className="w-full px-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Supplier Name</label>
+                <label className="block text-xs font-semibold text-[#6F7889] mb-1">Supplier Name</label>
                 <input
                   type="text"
                   name="supplier"
                   value={formData.supplier}
                   onChange={handleChange}
-                  className="w-full px-3 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+                  className="w-full px-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Challan / Invoice No.</label>
+                <label className="block text-xs font-semibold text-[#6F7889] mb-1">Challan / Invoice No.</label>
                 <input
                   type="text"
                   name="challanNo"
                   value={formData.challanNo}
                   onChange={handleChange}
-                  className="w-full px-3 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F] font-mono"
+                  className="w-full px-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238] font-mono"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Measurement Unit</label>
+                <label className="block text-xs font-semibold text-[#6F7889] mb-1">Measurement Unit</label>
                 <select
                   name="unit"
                   value={formData.unit}
                   onChange={handleChange}
-                  className="w-full px-3 py-1.5 text-xs bg-[#1e3264] border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F] cursor-pointer"
+                  className="w-full px-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238] cursor-pointer"
                 >
                   {UNITS.map(u => (
-                    <option key={u.value} value={u.value} className="bg-[#1e3264] text-white">{u.label}</option>
+                    <option key={u.value} value={u.value}>{u.label}</option>
                   ))}
                 </select>
               </div>
             </div>
 
             {/* Delivery Reconciliation Numbers */}
-            <div className="pt-2 border-t border-white/6">
-              <span className="text-[11px] font-bold text-[#8b8c8e] uppercase tracking-wider block mb-2">
+            <div className="pt-2 border-t border-[#E4D8BE]">
+              <span className="text-[11px] font-bold text-[#6F7889] uppercase tracking-wider block mb-2 font-['Outfit']">
                 Delivery Receipt & Physical Stock Count ({formData.unit})
               </span>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Challan Declared</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Challan Declared</label>
                   <input
                     type="number"
                     name="challanQty"
                     value={formData.challanQty}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Store Received</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Store Received</label>
                   <input
                     type="number"
                     name="receivedQty"
                     value={formData.receivedQty}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Opening Stock</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Opening Stock</label>
                   <input
                     type="number"
                     name="openingStock"
                     value={formData.openingStock}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Delivered Qty</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Delivered Qty</label>
                   <input
                     type="number"
                     name="deliveredQty"
                     value={formData.deliveredQty}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Supplier Returns</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Supplier Returns</label>
                   <input
                     type="number"
                     name="supplierReturns"
                     value={formData.supplierReturns}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Closing Physical</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Closing Physical</label>
                   <input
                     type="number"
                     name="closingPhysicalStock"
                     value={formData.closingPhysicalStock}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-[11px] font-semibold text-[#c8c8cb] mb-1">Recorded Consumption (Logs)</label>
+                  <label className="block text-[11px] font-semibold text-[#6F7889] mb-1">Recorded Consumption (Logs)</label>
                   <input
                     type="number"
                     name="recordedConsumption"
                     value={formData.recordedConsumption}
                     onChange={handleChange}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl font-bold text-white"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl font-bold text-[#29231D]"
                   />
                 </div>
               </div>
@@ -504,13 +506,13 @@ export default function MaterialAudit({
 
             {/* Auditor Field Notes */}
             <div>
-              <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Auditor Field Notes</label>
+              <label className="block text-xs font-semibold text-[#6F7889] mb-1">Auditor Field Notes</label>
               <textarea
                 name="notes"
                 rows={2}
                 value={formData.notes}
                 onChange={handleChange}
-                className="w-full px-3 py-1.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white"
+                className="w-full px-3 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D]"
                 placeholder="Mention batch number, testing observations, weighbridge ticket ID..."
               />
             </div>
@@ -519,17 +521,17 @@ export default function MaterialAudit({
             <div className="pt-2 flex items-center justify-between gap-3">
               <button
                 onClick={handleSave}
-                className="px-4 py-2.5 btn-fastshot-primary text-[#192853] rounded-xl text-xs font-semibold shadow-md transition flex items-center gap-1.5 cursor-pointer"
+                className="btn-gold text-xs shadow-md cursor-pointer"
               >
-                <Save className="w-3.5 h-3.5" />
+                <Save className="w-4 h-4" />
                 <span>Save Audit Record</span>
               </button>
 
               <button
                 onClick={() => onGenerateReport?.(formData, calculations)}
-                className="px-4 py-2.5 glass-chip rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer"
+                className="btn-secondary-sandstone text-xs cursor-pointer"
               >
-                <FileText className="w-3.5 h-3.5" />
+                <FileText className="w-4 h-4" />
                 <span>Generate Report</span>
               </button>
             </div>
@@ -538,14 +540,14 @@ export default function MaterialAudit({
 
         {/* Right Output: Reconciled Math */}
         <div className="lg:col-span-5 space-y-5">
-          <div className="glass-card p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-white/6 pb-3">
+          <div className="porcelain-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E4D8BE] pb-3">
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-1.5 tracking-tight">
-                  <Calculator className="w-4 h-4 text-[#FFE14F]" />
+                <h3 className="text-sm font-bold text-[#29231D] flex items-center gap-1.5 tracking-tight font-['Outfit']">
+                  <Calculator className="w-4 h-4 text-[#D6B238]" />
                   <span>Reconciliation Calculations</span>
                 </h3>
-                <p className="text-[11px] text-[#8b8c8e]">Automated site inventory audit equations</p>
+                <p className="text-[11px] text-[#6F7889]">Automated site inventory audit equations</p>
               </div>
 
               <StatusBadge status={calculations.status} size="md" />
@@ -553,54 +555,54 @@ export default function MaterialAudit({
 
             {/* Steps */}
             <div className="space-y-3">
-              <div className="p-3.5 rounded-xl bg-white/4 border border-white/6 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#EDE5D6]/50 border border-[#E4D8BE] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-300 block">Delivery Discrepancy</span>
-                  <span className="text-[10px] text-[#8b8c8e]">Received ({formData.receivedQty}) − Challan ({formData.challanQty})</span>
+                  <span className="text-[11px] font-bold text-[#29231D] block">Delivery Discrepancy</span>
+                  <span className="text-[10px] text-[#6F7889]">Received ({formData.receivedQty}) − Challan ({formData.challanQty})</span>
                 </div>
                 <div className="text-right">
-                  <span className={`text-sm font-bold ${calculations.deliveryDiscrepancy < 0 ? 'text-[#FFE14F]' : 'text-white'}`}>
+                  <span className={`text-sm font-bold ${calculations.deliveryDiscrepancy < 0 ? 'text-[#8f7215]' : 'text-[#29231D]'}`}>
                     {calculations.deliveryDiscrepancy > 0 ? `+${calculations.deliveryDiscrepancy}` : calculations.deliveryDiscrepancy} {formData.unit}
                   </span>
                   {calculations.deliveryDiscrepancy !== 0 && (
-                    <span className="text-[10px] text-[#8b8c8e] block">
+                    <span className="text-[10px] text-[#6F7889] block font-medium">
                       {calculations.deliveryDiscrepancy < 0 ? 'Delivery Shortage' : 'Surplus Delivery'}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white/4 border border-white/6 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#EDE5D6]/50 border border-[#E4D8BE] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-300 block">Available Material</span>
-                  <span className="text-[10px] text-[#8b8c8e]">Opening + Deliveries − Returns</span>
+                  <span className="text-[11px] font-bold text-[#29231D] block">Available Material</span>
+                  <span className="text-[10px] text-[#6F7889]">Opening + Deliveries − Returns</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-sm font-bold text-[#29231D]">
                     {calculations.availableMaterial} {formData.unit}
                   </span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white/4 border border-white/6 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#EDE5D6]/50 border border-[#E4D8BE] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-300 block">Estimated Material Used</span>
-                  <span className="text-[10px] text-[#8b8c8e]">Available − Closing Physical Stock</span>
+                  <span className="text-[11px] font-bold text-[#29231D] block">Estimated Material Used</span>
+                  <span className="text-[10px] text-[#6F7889]">Available − Closing Physical Stock</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-sm font-bold text-[#29231D]">
                     {calculations.estimatedUsed} {formData.unit}
                   </span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white/4 border border-white/6 flex items-center justify-between">
+              <div className="p-3.5 rounded-xl bg-[#EDE5D6]/50 border border-[#E4D8BE] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-300 block">Recorded Consumption</span>
-                  <span className="text-[10px] text-[#8b8c8e]">Pour / Masonry daily logs</span>
+                  <span className="text-[11px] font-bold text-[#29231D] block">Recorded Consumption</span>
+                  <span className="text-[10px] text-[#6F7889]">Pour / Masonry daily logs</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-sm font-bold text-[#29231D]">
                     {formData.recordedConsumption || 0} {formData.unit}
                   </span>
                 </div>
@@ -609,18 +611,18 @@ export default function MaterialAudit({
               {/* Consumption Variance Result Card */}
               <div className={`p-4 rounded-xl border ${
                 calculations.isHighVariance 
-                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-100' 
+                  ? 'bg-rose-50 border-rose-200 text-rose-900' 
                   : calculations.isModerateVariance 
-                  ? 'bg-[#FFE14F]/10 border-[#FFE14F]/30 text-amber-100'
-                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-100'
+                  ? 'bg-amber-50 border-amber-200 text-amber-900'
+                  : 'bg-[#727C3E]/10 border-[#727C3E]/30 text-[#727C3E]'
               }`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider block">Consumption Variance</span>
-                    <span className="text-[10px] opacity-75">Estimated Used − Recorded Logs</span>
+                    <span className="text-xs font-bold uppercase tracking-wider block font-['Outfit']">Consumption Variance</span>
+                    <span className="text-[10px] opacity-80">Estimated Used − Recorded Logs</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-extrabold block">
+                    <span className="text-lg font-black block">
                       {calculations.consumptionVariance > 0 ? `+${calculations.consumptionVariance}` : calculations.consumptionVariance} {formData.unit}
                     </span>
                     <span className="text-xs font-bold block">
@@ -629,24 +631,24 @@ export default function MaterialAudit({
                   </div>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-white/10 text-xs leading-relaxed opacity-90">
+                <div className="mt-3 pt-2.5 border-t border-[#E4D8BE] text-xs leading-relaxed font-medium">
                   {calculations.isHighVariance ? (
                     <p className="flex items-start gap-1.5">
-                      <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
                       <span>
                         <strong>Auditor Alert:</strong> Variance of {calculations.consumptionVariance} {formData.unit} (+{calculations.variancePercent}%) exceeds standard 5% allowance. Conduct physical cross-verification with batching scale records.
                       </span>
                     </p>
                   ) : calculations.isModerateVariance ? (
                     <p className="flex items-start gap-1.5">
-                      <Info className="w-4 h-4 shrink-0 text-[#FFE14F] mt-0.5" />
+                      <Info className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
                       <span>
                         <strong>Advisory:</strong> Variance of {calculations.consumptionVariance} {formData.unit} (+{calculations.variancePercent}%) is slightly elevated. Verify cutting/wastage register during next audit cycle.
                       </span>
                     </p>
                   ) : (
-                    <p className="flex items-start gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                    <p className="flex items-start gap-1.5 text-[#727C3E]">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-[#727C3E] mt-0.5" />
                       <span>
                         <strong>Reconciliation Balanced:</strong> Physical consumption matches recorded site pour logs within permissible engineering tolerance (±3%).
                       </span>
