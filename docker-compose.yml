@@ -1,11 +1,15 @@
 services:
   api:
-    build: .
+    build: ./backend
     container_name: siteaudit-api
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgres+asyncpg://postgres:postgres@db:5432/siteaudit
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET:-}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-me}
       - ALGORITHM=${ALGORITHM:-HS256}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
@@ -48,10 +52,14 @@ services:
       retries: 3
 
   worker:
-    build: .
+    build: ./backend
     container_name: siteaudit-worker
     environment:
       - DATABASE_URL=postgres+asyncpg://postgres:postgres@db:5432/siteaudit
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET:-}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-me}
       - VLM_PROVIDER=${VLM_PROVIDER:-mock}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}

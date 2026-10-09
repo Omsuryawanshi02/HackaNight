@@ -24,18 +24,21 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Initializing database engine: %s", settings.database_url)
     init_db(settings.database_url)
 
-    # Create tables for SQLite dev; for Postgres, use Alembic migrations.
-    if settings.database_url.startswith("sqlite"):
-        from sqlalchemy.ext.asyncio import create_async_engine
-
-        engine = create_async_engine(settings.database_url, echo=False)
+    # Ensure tables exist in database (both SQLite and Supabase Postgres)
+    try:
+        from app.db.session import _normalize_database_url
+        db_norm = _normalize_database_url(settings.database_url)
+        connect_args = {"statement_cache_size": 0} if "pooler.supabase.com" in db_norm else {}
+        engine = create_async_engine(db_norm, echo=False, connect_args=connect_args)
         async with engine.begin() as conn:
             # Import models so they register with Base.metadata
             import app.db.models  # noqa: F401
 
             await conn.run_sync(Base.metadata.create_all)
         await engine.dispose()
-        logger.info("SQLite tables created.")
+        logger.info("Database tables verified/created.")
+    except Exception as exc:
+        logger.warning("Auto table creation note (Alembic can also be run): %s", exc)
 
     yield
 
@@ -87,6 +90,38 @@ def create_app() -> FastAPI:
             "health": "/health",
             "ready": "/ready",
             "api": "/api/v1",
+        }
+
+    # Model discovery endpoint (OpenAI / VLM compatible)
+    @app.get("/v1/models", tags=["models"])
+    @app.get("/api/v1/models", tags=["models"])
+    async def list_models() -> dict:
+        return {
+            "object": "list",
+            "data": [
+                {
+                    "id": "qwen2.5-vl-7b-instruct",
+                    "object": "model",
+                    "created": 1700000000,
+                    "owned_by": "siteaudit",
+                },
+                {
+                    "id": "gemini-1.5-flash",
+                    "object": "model",
+                    "created": 1700000000,
+                    "owned_by": "google",
+                },
+            ],
+        }
+
+    @app.get("/v1/models/{model_id:path}", tags=["models"])
+    @app.get("/api/v1/models/{model_id:path}", tags=["models"])
+    async def get_model(model_id: str) -> dict:
+        return {
+            "id": model_id,
+            "object": "model",
+            "created": 1700000000,
+            "owned_by": "siteaudit",
         }
 
     # Register API routers
