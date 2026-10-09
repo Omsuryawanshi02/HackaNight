@@ -55,18 +55,18 @@ export default function ActivityLogs({ onShowToast }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-[#29231D]">
       {/* Top Banner */}
-      <div className="glass-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="porcelain-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FFE14F]/15 text-[#FFE14F] border border-[#FFE14F]/30 uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D6B238]/20 text-[#29231D] border border-[#D6B238]/40 uppercase tracking-wider font-['Outfit']">
               Immutable Governance Trail
             </span>
-            <span className="text-xs text-[#8b8c8e]">• ISO/IEC 27001 Compliance</span>
+            <span className="text-xs text-[#6F7889] font-medium">• ISO/IEC 27001 Compliance</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mt-1.5 tracking-tight">System Activity & Audit Logs</h1>
-          <p className="text-xs text-[#8b8c8e] mt-1">
+          <h1 className="text-2xl font-black text-[#29231D] mt-1.5 tracking-tight font-['Outfit']">System Activity & Audit Logs</h1>
+          <p className="text-xs text-[#6F7889] font-medium mt-1">
             Tamper-evident chronological ledger tracking all authentication, user creation, milestone claims, and auditor verdicts.
           </p>
         </div>
@@ -75,40 +75,40 @@ export default function ActivityLogs({ onShowToast }) {
           <button
             onClick={fetchLogs}
             disabled={isLoading}
-            className="px-3.5 py-2 glass-chip rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 btn-secondary-sandstone text-xs font-bold flex items-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
           <button
             onClick={handleExportCsv}
-            className="px-3.5 py-2 glass-chip rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 btn-gold text-[#29231D] rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Export CSV</span>
           </button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="glass-card p-4">
+      <div className="porcelain-card p-4">
         <div className="relative max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#6F7889] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by action, actor, or details..."
-            className="w-full pl-10 pr-3.5 py-2 text-xs bg-white/4 border border-white/8 rounded-xl text-white placeholder-[#8b8c8e] focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+            className="w-full pl-10 pr-3.5 py-2 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] font-medium"
           />
         </div>
       </div>
 
       {/* Logs Table */}
-      <div className="glass-card overflow-hidden">
+      <div className="porcelain-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-[#c8c8cb]">
-            <thead className="bg-white/3 border-b border-white/6 text-[#8b8c8e] uppercase text-[11px]">
+          <table className="w-full text-left text-xs text-[#29231D]">
+            <thead className="bg-[#EDE5D6] border-b border-[#E4D8BE] text-[#6F7889] uppercase text-[10px] font-['Outfit'] font-bold">
               <tr>
                 <th className="px-4 py-3.5">Log ID & Time</th>
                 <th className="px-4 py-3.5">Actor</th>
@@ -117,39 +117,39 @@ export default function ActivityLogs({ onShowToast }) {
                 <th className="px-4 py-3.5">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-[#E4D8BE]">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400">Loading activity trail...</td>
+                  <td colSpan={5} className="px-4 py-8 text-center text-[#6F7889]">Loading activity trail...</td>
                 </tr>
               ) : filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400">No activity logs recorded.</td>
+                  <td colSpan={5} className="px-4 py-8 text-center text-[#6F7889]">No activity logs recorded.</td>
                 </tr>
               ) : (
                 filteredLogs.map((l) => (
-                  <tr key={l.id} className="hover:bg-white/4 transition">
+                  <tr key={l.id} className="hover:bg-[#EDE5D6]/40 transition">
                     <td className="px-4 py-3.5">
-                      <div className="font-mono text-xs font-bold text-white">{l.id}</div>
-                      <div className="text-[11px] text-[#8b8c8e]">{l.timestamp}</div>
+                      <div className="font-mono text-xs font-bold text-[#29231D]">{l.id}</div>
+                      <div className="text-[11px] text-[#6F7889] font-medium">{l.timestamp}</div>
                     </td>
 
                     <td className="px-4 py-3.5">
-                      <div className="font-semibold text-white">{l.actor_name || 'System'}</div>
-                      <div className="text-[10px] text-[#8b8c8e] font-mono">{l.actor_user_id}</div>
+                      <div className="font-bold text-[#29231D]">{l.actor_name || 'System'}</div>
+                      <div className="text-[10px] text-[#6F7889] font-mono">{l.actor_user_id}</div>
                     </td>
 
                     <td className="px-4 py-3.5">
-                      <span className="px-2 py-0.5 rounded-full bg-white/6 border border-white/8 text-[11px] font-mono font-medium text-[#FFE14F]">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#EDE5D6] border border-[#E4D8BE] text-[11px] font-mono font-bold text-[#8f7215]">
                         {l.action}
                       </span>
                     </td>
 
-                    <td className="px-4 py-3.5 text-slate-300 font-mono text-[11px]">
+                    <td className="px-4 py-3.5 text-[#29231D] font-mono text-[11px] font-semibold">
                       {l.target_type}: {l.target_id}
                     </td>
 
-                    <td className="px-4 py-3.5 text-slate-300 max-w-md">
+                    <td className="px-4 py-3.5 text-[#29231D] font-medium max-w-md">
                       {l.details || '—'}
                     </td>
                   </tr>

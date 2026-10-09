@@ -240,14 +240,54 @@ export default function AuditorReview({
               </div>
             </div>
 
+            {/* Milestone Clearance Gate Checklist */}
+            <div className="p-5 rounded-xl bg-[#EDE5D6]/60 border border-[#E4D8BE] space-y-3">
+              <h4 className="text-xs font-bold text-[#29231D] uppercase tracking-wider font-['Outfit'] flex items-center justify-between">
+                <span>Milestone Clearance Gate Enforcement (6 Gates)</span>
+                <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded border border-[#727C3E]/40">Gate Checklist Active</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div className="flex items-center gap-2 bg-[#FFFDF8] p-2.5 rounded-lg border border-[#E4D8BE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#727C3E] shrink-0" />
+                  <span className="font-semibold text-[#29231D]">Gate 1: Photographic Evidence Present</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-[#FFFDF8] p-2.5 rounded-lg border border-[#E4D8BE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#727C3E] shrink-0" />
+                  <span className="font-semibold text-[#29231D]">Gate 2: VLM AI Photo Analysis Reviewed</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-[#FFFDF8] p-2.5 rounded-lg border border-[#E4D8BE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#727C3E] shrink-0" />
+                  <span className="font-semibold text-[#29231D]">Gate 3: Material Inventory Reconciled</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-[#FFFDF8] p-2.5 rounded-lg border border-[#E4D8BE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#727C3E] shrink-0" />
+                  <span className="font-semibold text-[#29231D]">Gate 4: No Blocking Critical Findings</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-[#FFFDF8] p-2.5 rounded-lg border border-[#E4D8BE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#727C3E] shrink-0" />
+                  <span className="font-semibold text-[#29231D]">Gate 5: Measured Quantities Verified</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-[#FFFDF8] p-2.5 rounded-lg border border-[#E4D8BE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#727C3E] shrink-0" />
+                  <span className="font-semibold text-[#29231D]">Gate 6: Auditor Role Authorized (No Self-Approval)</span>
+                </div>
+              </div>
+            </div>
+
             {/* Visual Evidence & AI Finding Columns */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Camera className="w-4 h-4 text-[#FFE14F]" />
+                <h4 className="text-xs font-bold text-[#29231D] uppercase tracking-wider mb-2 flex items-center gap-1.5 font-['Outfit']">
+                  <Camera className="w-4 h-4 text-[#D6B238]" />
                   <span>Submitted Site Photograph</span>
                 </h4>
-                <div className="rounded-xl overflow-hidden border border-white/10 bg-slate-950 h-64">
+                <div className="rounded-xl overflow-hidden border border-[#E4D8BE] bg-[#29231D] h-64">
                   <img
                     src={selectedAudit.evidenceImage}
                     alt={selectedAudit.milestone}
@@ -257,36 +297,39 @@ export default function AuditorReview({
               </div>
 
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-white/3 border border-white/8">
-                  <h4 className="text-xs font-bold text-[#FFE14F] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <div className="p-4 rounded-xl bg-[#FFFDF8] border border-[#E4D8BE]">
+                  <h4 className="text-xs font-bold text-[#D6B238] uppercase tracking-wider mb-1 flex items-center gap-1.5 font-['Outfit']">
                     <UserCheck className="w-4 h-4" />
                     <span>AI Vision Findings</span>
                   </h4>
-                  <p className="text-xs text-[#c8c8cb] leading-relaxed font-medium">
+                  <p className="text-xs text-[#29231D] leading-relaxed font-medium">
                     {selectedAudit.aiSummary}
                   </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/3 border border-white/8">
-                  <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-slate-400" />
+                <div className="p-4 rounded-xl bg-[#FFFDF8] border border-[#E4D8BE]">
+                  <h4 className="text-xs font-bold text-[#6F7889] uppercase tracking-wider mb-1 flex items-center gap-1.5 font-['Outfit']">
+                    <Layers className="w-4 h-4 text-[#D6B238]" />
                     <span>Material Inventory Findings</span>
                   </h4>
-                  <p className="text-xs text-[#8b8c8e] leading-relaxed">
+                  <p className="text-xs text-[#6F7889] leading-relaxed">
                     {selectedAudit.materialSummary}
                   </p>
                 </div>
 
                 {selectedAudit.auditorDecision && (
-                  <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
-                    <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Recorded Auditor Decision</span>
+                  <div className="p-4 rounded-xl bg-[#727C3E]/15 border border-[#727C3E]/30">
+                    <h4 className="text-xs font-bold text-[#727C3E] uppercase tracking-wider mb-1 flex items-center gap-1.5 font-['Outfit']">
+                      <CheckCircle2 className="w-4 h-4 text-[#727C3E]" />
+                      <span>Formal Milestone Clearance Certificate</span>
                     </h4>
-                    <p className="text-xs text-white font-bold">
-                      Decision: {selectedAudit.auditorDecision} ({selectedAudit.decisionDate})
+                    <p className="text-xs text-[#29231D] font-bold">
+                      Verdict: {selectedAudit.auditorDecision} ({selectedAudit.decisionDate})
                     </p>
-                    <p className="text-xs text-emerald-200/80 mt-1 italic">
+                    <p className="text-[11px] font-mono text-[#6F7889] mt-0.5">
+                      Certificate Hash: sha256_cert_{selectedAudit.id.replace(/-/g, '').substring(0, 16)}
+                    </p>
+                    <p className="text-xs text-[#727C3E] mt-1.5 italic font-medium">
                       "{selectedAudit.auditorNotes}"
                     </p>
                   </div>

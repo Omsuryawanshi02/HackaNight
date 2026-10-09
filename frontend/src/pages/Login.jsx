@@ -13,52 +13,50 @@ import {
   ArrowRight,
   Sparkles,
   KeyRound,
-  Info
+  Info,
+  Building2,
+  Package
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 
-// Demo quick-fill accounts for hackathon evaluation
+// 4 Master Roles matching specifications
 const DEMO_ROLE_PRESETS = [
   {
-    role: 'Main Supervisor',
-    title: 'Administrator',
-    email: 'supervisor@buildverify.ai',
+    role: 'SITE_SUPERVISOR',
+    title: 'Site Supervisor',
+    email: 'supervisor@sitesure.ai',
     password: 'Supervisor@2026!',
-    badge: 'Admin Access',
-    desc: 'Manages user accounts, assigns roles, configures projects, and oversees system logs.',
-    icon: ShieldCheck,
-    color: 'from-purple-500/20 to-blue-500/20 text-[#9C86CE] border-purple-500/30'
+    badge: 'Live Site Capture',
+    desc: 'Captures location-stamped site photos, submits milestone claims, and tracks evidence requests.',
+    icon: HardHat
   },
   {
-    role: 'Contractor',
-    title: 'Site Progress Lead',
-    email: 'contractor@buildverify.ai',
-    password: 'Contractor@2026!',
-    badge: 'Field Submissions',
-    desc: 'Submits milestone claims, uploads site photos, and responds to auditor evidence requests.',
-    icon: HardHat,
-    color: 'from-amber-500/20 to-orange-500/20 text-[#FFE14F] border-[#FFE14F]/30'
-  },
-  {
-    role: 'Shopkeeper',
+    role: 'STORE_INCHARGE',
     title: 'Store In-Charge',
-    email: 'store@buildverify.ai',
+    email: 'store@sitesure.ai',
     password: 'Store@2026!',
-    badge: 'Material Deliveries',
+    badge: 'Material Audit & OCR',
     desc: 'Registers delivery challans, uploads OCR tickets, records opening and closing physical stock.',
-    icon: Layers,
-    color: 'from-blue-500/20 to-cyan-500/20 text-cyan-400 border-cyan-500/30'
+    icon: Package
   },
   {
-    role: 'Auditor',
-    title: 'Quality & Civil PE',
-    email: 'auditor@buildverify.ai',
+    role: 'AUDIT_MANAGER',
+    title: 'Audit Manager',
+    email: 'auditor@sitesure.ai',
     password: 'Auditor@2026!',
-    badge: 'Approval Authority',
-    desc: 'Reviews AI vision findings, audits inventory variance, and signs milestone certification.',
-    icon: UserCheck,
-    color: 'from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/30'
+    badge: 'Clearance & Gate Check',
+    desc: 'Reviews AI vision findings, audits inventory variance, and signs milestone clearance certificates.',
+    icon: UserCheck
+  },
+  {
+    role: 'ADMIN',
+    title: 'System Admin',
+    email: 'admin@sitesure.ai',
+    password: 'Admin@2026!',
+    badge: 'Governance & Audit Log',
+    desc: 'Manages user accounts, assigns RBAC roles, configures site boundaries, and inspects audit logs.',
+    icon: ShieldCheck
   }
 ];
 
@@ -136,52 +134,45 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#e9e4d7] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans text-white relative overflow-hidden">
-      {/* Atmospheric ambient background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-linear-to-b from-[#9C86CE]/12 via-[#FFE14F]/8 to-transparent blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans text-[#29231D] relative overflow-hidden">
       <div className="w-full max-w-4xl relative z-10 space-y-8 my-auto">
         {/* Brand Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 relative">
-              <svg className="w-full h-full" viewBox="0 0 34 34" fill="none">
-                <circle cx="17" cy="17" r="17" fill="#9C86CE"/>
-                <circle cx="17" cy="17" r="8.6" fill="#FFFFFF"/>
-                <circle cx="17" cy="17" r="3.7" fill="#192853"/>
-              </svg>
+            <div className="w-10 h-10 rounded-xl bg-[#D6B238] flex items-center justify-center text-[#29231D] shadow-md font-black">
+              <Building2 className="w-6 h-6" />
             </div>
             <div className="text-left">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-2xl tracking-tight text-white leading-none">BuildVerify</span>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#FFE14F]/20 text-[#FFE14F] border border-[#FFE14F]/30">AI</span>
+                <span className="font-extrabold text-2xl tracking-tight text-[#29231D] font-['Outfit']">SITESURE</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#D6B238] text-[#29231D]">AI</span>
               </div>
-              <p className="text-[11px] text-[#8b8c8e] font-medium tracking-tight mt-0.5">
-                AI Construction Milestone Verification & Material Audit
+              <p className="text-[11px] text-[#6F7889] font-semibold tracking-tight mt-0.5">
+                Construction Progress Verification & Material Audit Platform
               </p>
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-2">
+          <h1 className="text-2xl sm:text-3xl font-black text-[#29231D] tracking-tight mt-2 font-['Outfit']">
             Sign In to Your Workspace
           </h1>
-          <p className="text-xs sm:text-sm text-[#8b8c8e] max-w-md mx-auto">
-            Role-governed verification environment. Sign in with your assigned enterprise account.
+          <p className="text-xs sm:text-sm text-[#6F7889] max-w-md mx-auto">
+            Strict role-based access control. Sign in with your assigned account.
           </p>
         </div>
 
         {/* 4 Role Cards / Quick Credential Selectors */}
         <div>
           <div className="flex items-center justify-between mb-3 px-1">
-            <span className="text-xs font-semibold text-[#8b8c8e] uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#FFE14F]" />
+            <span className="text-xs font-bold text-[#6F7889] uppercase tracking-wider flex items-center gap-1.5 font-['Outfit']">
+              <Sparkles className="w-3.5 h-3.5 text-[#D6B238]" />
               <span>Select Role Account to Evaluate</span>
             </span>
-            <span className="text-[11px] text-[#8b8c8e] hidden sm:inline">
-              Backend cryptographically enforces role permissions
+            <span className="text-[11px] text-[#6F7889] hidden sm:inline">
+              FastAPI backend cryptographically validates permissions
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {DEMO_ROLE_PRESETS.map((p) => {
               const Icon = p.icon;
               const isSelected = email === p.email;
@@ -189,32 +180,32 @@ export default function Login() {
                 <div
                   key={p.role}
                   onClick={() => handleSelectPreset(p)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between porcelain-card ${
                     isSelected 
-                      ? 'bg-white/8 border-[#FFE14F] shadow-lg shadow-[#FFE14F]/10 -translate-y-1' 
-                      : 'bg-white/3 border-white/8 hover:bg-white/6 hover:border-white/15'
+                      ? 'border-[#D6B238] ring-2 ring-[#D6B238]/40 -translate-y-1' 
+                      : 'hover:border-[#D6B238]/50'
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className={`p-2 rounded-xl bg-linear-to-br ${p.color} border`}>
-                        <Icon className="w-4 h-4" />
+                      <div className="p-2 rounded-xl bg-[#D6B238]/20 text-[#29231D]">
+                        <Icon className="w-4.5 h-4.5" />
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EDE5D6] text-[#29231D] border border-[#E4D8BE]">
                         {p.badge}
                       </span>
                     </div>
 
-                    <h3 className="text-xs font-bold text-white tracking-tight">{p.role}</h3>
-                    <p className="text-[10px] text-[#8b8c8e] font-medium">{p.title}</p>
-                    <p className="text-[11px] text-[#c8c8cb] mt-2 line-clamp-2 leading-relaxed">
+                    <h3 className="text-xs font-bold text-[#29231D] font-['Outfit']">{p.title}</h3>
+                    <p className="text-[10px] text-[#6F7889] font-semibold">{p.role}</p>
+                    <p className="text-[11px] text-[#6F7889] mt-2 line-clamp-2 leading-relaxed">
                       {p.desc}
                     </p>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400 font-mono truncate max-w-[120px]">{p.email}</span>
-                    <span className={`font-semibold text-xs flex items-center gap-0.5 ${isSelected ? 'text-[#FFE14F]' : 'text-slate-400'}`}>
+                  <div className="mt-3 pt-2.5 border-t border-[#E4D8BE] flex items-center justify-between text-[11px]">
+                    <span className="text-[#6F7889] font-mono truncate max-w-[120px]">{p.email}</span>
+                    <span className={`font-bold text-xs flex items-center gap-0.5 ${isSelected ? 'text-[#8f7215]' : 'text-[#6F7889]'}`}>
                       Select <ArrowRight className="w-3 h-3" />
                     </span>
                   </div>
@@ -225,30 +216,30 @@ export default function Login() {
         </div>
 
         {/* Login Form Card */}
-        <div className="glass-card p-6 sm:p-8 max-w-lg mx-auto">
+        <div className="porcelain-card p-6 sm:p-8 max-w-lg mx-auto shadow-md">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Error Message Alert */}
             {(errorMessage || authError) && (
-              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2.5 text-xs text-rose-300">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-xs text-rose-800 font-medium">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{errorMessage || authError}</p>
               </div>
             )}
 
             {/* Email Field */}
             <div>
-              <label className="block text-xs font-semibold text-[#c8c8cb] mb-1.5">
+              <label className="block text-xs font-semibold text-[#6F7889] mb-1.5">
                 Corporate Email Address
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#6F7889] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@buildverify.ai"
+                  placeholder="name@sitesure.ai"
                   required
-                  className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-white/4 border border-white/10 rounded-xl text-white placeholder-[#8b8c8e] focus:outline-none focus:ring-1 focus:ring-[#FFE14F] transition"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] transition"
                 />
               </div>
             </div>
@@ -256,7 +247,7 @@ export default function Login() {
             {/* Password Field */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-[#c8c8cb]">
+                <label className="text-xs font-semibold text-[#6F7889]">
                   Account Password
                 </label>
                 <button
@@ -266,25 +257,25 @@ export default function Login() {
                     setForgotEmail(email);
                     setIsForgotModalOpen(true);
                   }}
-                  className="text-[11px] font-semibold text-[#FFE14F] hover:underline cursor-pointer"
+                  className="text-[11px] font-bold text-[#8f7215] hover:underline cursor-pointer"
                 >
                   Forgot Password?
                 </button>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#6F7889] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className="w-full pl-10 pr-10 py-2.5 text-xs bg-white/4 border border-white/10 rounded-xl text-white placeholder-[#8b8c8e] focus:outline-none focus:ring-1 focus:ring-[#FFE14F] transition"
+                  className="w-full pl-10 pr-10 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="p-1 text-slate-400 hover:text-white absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                  className="p-1 text-[#6F7889] hover:text-[#29231D] absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -299,14 +290,14 @@ export default function Login() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded bg-white/5 border-white/20 text-[#FFE14F] accent-[#FFE14F] cursor-pointer"
+                  className="w-4 h-4 rounded border-[#E4D8BE] text-[#D6B238] accent-[#D6B238] cursor-pointer"
                 />
-                <span className="text-xs text-[#8b8c8e]">Remember this browser</span>
+                <span className="text-xs text-[#6F7889] font-medium">Remember this browser</span>
               </label>
 
-              <span className="text-[11px] text-[#8b8c8e] flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>JWT RBAC 256</span>
+              <span className="text-[11px] text-[#727C3E] font-bold flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#727C3E]" />
+                <span>JWT RBAC Enforced</span>
               </span>
             </div>
 
@@ -314,17 +305,17 @@ export default function Login() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 btn-fastshot-primary text-[#192853] font-semibold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+              className="w-full py-3 px-4 btn-gold text-[#29231D] font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-[#29231D] border-t-transparent rounded-full animate-spin" />
                   <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In to BuildVerify AI</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Sign In to SiteSure AI</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -332,9 +323,9 @@ export default function Login() {
         </div>
 
         {/* Security & Access Policy Notice */}
-        <div className="text-center text-xs text-[#8b8c8e] max-w-lg mx-auto flex items-center justify-center gap-1.5">
-          <Info className="w-3.5 h-3.5 shrink-0" />
-          <span>Only authorized personnel provisioned by the Main Supervisor may access this portal.</span>
+        <div className="text-center text-xs text-[#6F7889] max-w-lg mx-auto flex items-center justify-center gap-1.5 font-medium">
+          <Info className="w-3.5 h-3.5 shrink-0 text-[#D6B238]" />
+          <span>Only authorized personnel provisioned by the Administrator may access this platform.</span>
         </div>
       </div>
 
@@ -347,32 +338,32 @@ export default function Login() {
         footer={
           <button
             onClick={() => setIsForgotModalOpen(false)}
-            className="px-4 py-2 glass-chip rounded-xl text-xs font-semibold cursor-pointer"
+            className="px-4 py-2 btn-secondary-sandstone text-xs font-semibold cursor-pointer"
           >
             Close
           </button>
         }
       >
         <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
-          <p className="text-xs text-[#c8c8cb] leading-relaxed">
-            Enter your registered employee email. Your Main Supervisor will provision a secure temporary password reset ticket.
+          <p className="text-xs text-[#6F7889] leading-relaxed">
+            Enter your registered employee email. Your System Administrator will provision a secure temporary password reset ticket.
           </p>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Registered Email</label>
+            <label className="block text-xs font-semibold text-[#6F7889] mb-1">Registered Email</label>
             <input
               type="email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
-              placeholder="e.g. contractor@buildverify.ai"
+              placeholder="e.g. supervisor@sitesure.ai"
               required
-              className="w-full px-3.5 py-2.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+              className="w-full px-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
             />
           </div>
 
           {forgotSuccess && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <span>{forgotSuccess}</span>
             </div>
           )}
@@ -380,7 +371,7 @@ export default function Login() {
           {!forgotSuccess && (
             <button
               type="submit"
-              className="w-full py-2.5 px-4 btn-fastshot-primary text-[#192853] font-semibold text-xs rounded-xl shadow-md cursor-pointer"
+              className="w-full py-2.5 px-4 btn-gold text-[#29231D] font-bold text-xs rounded-xl shadow-md cursor-pointer"
             >
               Request Password Reset
             </button>
@@ -396,47 +387,47 @@ export default function Login() {
         maxWidth="max-w-md"
       >
         <form onSubmit={handleFirstTimeChangePassword} className="space-y-4">
-          <div className="p-3 rounded-xl bg-amber-500/10 border border-[#FFE14F]/30 text-xs text-[#FFE14F] flex items-start gap-2">
-            <KeyRound className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+            <KeyRound className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
               Your account was provisioned with a temporary password. You must set a private password before accessing your workspace.
             </span>
           </div>
 
           {changePassError && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{changePassError}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">New Password (min 8 chars)</label>
+            <label className="block text-xs font-semibold text-[#6F7889] mb-1">New Password (min 8 chars)</label>
             <input
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Enter secure new password"
               required
-              className="w-full px-3.5 py-2.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+              className="w-full px-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8c8cb] mb-1">Confirm New Password</label>
+            <label className="block text-xs font-semibold text-[#6F7889] mb-1">Confirm New Password</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Re-enter new password"
               required
-              className="w-full px-3.5 py-2.5 text-xs bg-white/4 border border-white/8 rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-[#FFE14F]"
+              className="w-full px-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-2.5 px-4 btn-fastshot-primary text-[#192853] font-semibold text-xs rounded-xl shadow-md cursor-pointer mt-2"
+            className="w-full py-2.5 px-4 btn-gold text-[#29231D] font-bold text-xs rounded-xl shadow-md cursor-pointer mt-2"
           >
             Save Password & Continue
           </button>
@@ -445,3 +436,4 @@ export default function Login() {
     </div>
   );
 }
+
