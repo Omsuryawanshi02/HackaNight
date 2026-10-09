@@ -1,6 +1,6 @@
 services:
   api:
-    build: .
+    build: ./backend
     container_name: siteaudit-api
     ports:
       - "8000:8000"
@@ -52,7 +52,7 @@ services:
       retries: 3
 
   worker:
-    build: .
+    build: ./backend
     container_name: siteaudit-worker
     environment:
       - DATABASE_URL=postgres+asyncpg://postgres:postgres@db:5432/siteaudit
