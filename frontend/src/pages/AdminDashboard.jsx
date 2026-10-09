@@ -70,7 +70,7 @@ export default function AdminDashboard({
           icon={Building2}
           trend="All monitored"
           trendType="neutral"
-          onClick={() => onNavigate('projects')}
+          onClick={() => onNavigate('dashboard')}
         />
         <StatCard
           title="Active Users"
@@ -88,7 +88,7 @@ export default function AdminDashboard({
           icon={Clock}
           trend="In queue"
           trendType="warning"
-          onClick={() => onNavigate('all-audits')}
+          onClick={() => onNavigate('auditor-review')}
         />
         <StatCard
           title="Material Discrepancies"
@@ -162,7 +162,7 @@ export default function AdminDashboard({
               <p className="text-xs text-[#8b8c8e]">Live oversight across all project packages</p>
             </div>
             <button
-              onClick={() => onNavigate('all-audits')}
+              onClick={() => onNavigate('auditor-review')}
               className="text-xs font-semibold text-[#FFE14F] hover:underline"
             >
               View All

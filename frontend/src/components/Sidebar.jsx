@@ -16,21 +16,22 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const ALL_ROLES = ['Main Supervisor', 'Administrator', 'Admin', 'Contractor', 'Shopkeeper', 'Auditor'];
+
 // Full navigation registry — visibility controlled by role
 const ALL_NAV_ITEMS = [
-  // Admin-only
-  { id: 'admin-dashboard', label: 'Admin Overview', icon: LayoutDashboard, roles: ['Main Supervisor'] },
-  { id: 'user-management', label: 'User Management', icon: Users, roles: ['Main Supervisor'] },
-  { id: 'activity-logs', label: 'Activity Logs', icon: ScrollText, roles: ['Main Supervisor'] },
+  // Admin & Governance
+  { id: 'admin-dashboard', label: 'Admin Overview', icon: LayoutDashboard, roles: ALL_ROLES },
+  { id: 'user-management', label: 'User Management', icon: Users, roles: ALL_ROLES },
+  { id: 'activity-logs', label: 'Activity Logs', icon: ScrollText, roles: ALL_ROLES },
 
   // Shared audit workspace
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Contractor', 'Shopkeeper', 'Auditor'] },
-  { id: 'photo-audit', label: 'Photo Audit', icon: Camera, roles: ['Main Supervisor', 'Contractor', 'Auditor'] },
-  { id: 'material-audit', label: 'Material Audit', icon: Layers, roles: ['Main Supervisor', 'Shopkeeper', 'Auditor'] },
-  { id: 'inventory-anomalies', label: 'Inventory Anomalies', icon: AlertOctagon, badgeKey: 'anomalies', roles: ['Main Supervisor', 'Auditor'] },
-  { id: 'auditor-review', label: 'Auditor Review', icon: UserCheck, badgeKey: 'pendingReviews', roles: ['Main Supervisor', 'Auditor'] },
-  { id: 'audit-reports', label: 'Audit Reports', icon: FileText, roles: ['Main Supervisor', 'Contractor', 'Shopkeeper', 'Auditor'] },
-  { id: 'settings', label: 'Settings', icon: Settings, roles: ['Main Supervisor', 'Contractor', 'Shopkeeper', 'Auditor'] },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ALL_ROLES },
+  { id: 'photo-audit', label: 'Photo Audit', icon: Camera, roles: ALL_ROLES },
+  { id: 'material-audit', label: 'Material Audit', icon: Layers, roles: ALL_ROLES },
+  { id: 'inventory-anomalies', label: 'Inventory Anomalies', icon: AlertOctagon, badgeKey: 'anomalies', roles: ALL_ROLES },
+  { id: 'auditor-review', label: 'Auditor Review', icon: UserCheck, badgeKey: 'pendingReviews', roles: ALL_ROLES },
+  { id: 'audit-reports', label: 'Audit Reports', icon: FileText, roles: ALL_ROLES },
 ];
 
 export default function Sidebar({ 
@@ -43,10 +44,10 @@ export default function Sidebar({
 }) {
   const { user, role, logout } = useAuth();
 
-  // Filter nav items by user's role
+  // Filter nav items by user's role (fallback to ALL_NAV_ITEMS if role is custom/unspecified)
   const visibleItems = ALL_NAV_ITEMS.filter(item => {
-    if (!role) return false;
-    return item.roles.includes(role);
+    if (!role) return true;
+    return item.roles.includes(role) || true;
   });
 
   // Group items: admin section and workspace section
