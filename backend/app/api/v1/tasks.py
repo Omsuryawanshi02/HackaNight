@@ -324,7 +324,7 @@ async def create_norm(
             detail="Norm already exists for this task + BOQ item",
         )
 
-    norm = TaskBoQNorm(task_id=task_id, **body.model_dump(exclude={"task_id"}))
+    norm = TaskBoQNorm(task_id=task_id, **body.model_dump())
     db.add(norm)
     await db.commit()
     await db.refresh(norm)

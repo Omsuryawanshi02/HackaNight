@@ -11,6 +11,13 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1)
 
 
+class SignUpRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    full_name: str | None = None
+    role: str = Field(default="SITE_SUPERVISOR")
+
+
 class RefreshRequest(BaseModel):
     refresh_token: str = Field(min_length=1)
 
@@ -27,10 +34,11 @@ class UserResponse(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
-    refresh_token: str
+    refresh_token: str | None = None
     token_type: str = "bearer"
     user: UserResponse
 
 
 class MessageResponse(BaseModel):
     message: str
+

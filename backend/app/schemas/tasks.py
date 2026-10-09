@@ -75,7 +75,6 @@ class StageResponse(BaseModel):
 
 
 class TaskBoQNormCreate(BaseModel):
-    task_id: uuid.UUID
     boq_item_id: uuid.UUID
     norm_qty_per_unit_work: float = Field(gt=0)
 

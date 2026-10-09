@@ -169,3 +169,14 @@ Phases must execute in order since each builds on the previous:
 6. Anomaly Detection + Alerts (model, detectors, engine, dedup)
 7. Milestone Gate + Certificates (evaluator, checklist, PDF)
 8. Hardening + Demo (security tests, rate limits, end-to-end flow)
+
+## Supabase Auth Migration Decision
+
+- **Auth Provider**: Migrated from custom local JWT auth to Supabase Auth (GoTrue REST API).
+- **Token Verification**: Hybrid token verification:
+  1. Fast local verification using `SUPABASE_JWT_SECRET` (HS256) when configured.
+  2. Authoritative verification via Supabase `GET /auth/v1/user` API (supports symmetric/asymmetric signing and instant revocation checks).
+  3. Dev fallback for offline testing when credentials are unconfigured.
+- **Identity Sync**: Automated user profile and RBAC role synchronization between Supabase user accounts and the local relational `users` table via `sync_supabase_user`.
+- **Passkeys/Passwords**: Password storage and hashing delegated entirely to Supabase Auth (`User.password_hash` made nullable).
+- **Endpoints**: Added `/api/v1/auth/signup`, `/api/v1/auth/logout` in addition to Supabase-backed `/login`, `/refresh`, and `/me`.

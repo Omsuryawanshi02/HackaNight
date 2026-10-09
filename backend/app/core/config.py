@@ -8,7 +8,13 @@ class Settings(BaseSettings):
     # Database
     database_url: str = Field(default="sqlite+aiosqlite:///./dev.db", alias="DATABASE_URL")
 
-    # Security
+    # Supabase Auth
+    supabase_url: str = Field(default="", alias="SUPABASE_URL")
+    supabase_anon_key: str = Field(default="", alias="SUPABASE_ANON_KEY")
+    supabase_service_role_key: str = Field(default="", alias="SUPABASE_SERVICE_ROLE_KEY")
+    supabase_jwt_secret: str = Field(default="", alias="SUPABASE_JWT_SECRET")
+
+    # Security / Fallback
     secret_key: str = Field(default="change-this-to-a-strong-random-value", alias="SECRET_KEY")
     algorithm: str = Field(default="HS256", alias="ALGORITHM")
     access_token_expire_minutes: int = Field(default=30, alias="ACCESS_TOKEN_EXPIRE_MINUTES")
