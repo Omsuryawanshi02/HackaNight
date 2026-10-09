@@ -17,7 +17,7 @@ from __future__ import annotations
 import uuid
 from enum import Enum
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

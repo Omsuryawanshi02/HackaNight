@@ -77,7 +77,7 @@ async def list_projects(
             .order_by(Project.created_at.desc())
         )
 
-    count_stmt = func_count(stmt)
+    count_stmt = select(func_count(stmt))
     total_result = await db.execute(count_stmt)
     total = total_result.scalar_one_or_none() or 0
 
