@@ -10,9 +10,22 @@ from app.db.base import get_engine, set_engine
 _session_factory: async_sessionmaker[AsyncSession] | None = None
 
 
+def _normalize_database_url(url: str) -> str:
+    """Ensure PostgreSQL URLs use the asyncpg async driver."""
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
+
 def init_db(database_url: str) -> None:
     """Initialize the database engine and session factory."""
-    engine = create_async_engine(database_url, echo=False, future=True)
+    norm_url = _normalize_database_url(database_url)
+    connect_args = {}
+    if "pooler.supabase.com" in norm_url:
+        connect_args = {"statement_cache_size": 0}
+    engine = create_async_engine(norm_url, echo=False, future=True, connect_args=connect_args)
     set_engine(engine)
     global _session_factory
     _session_factory = async_sessionmaker(engine, expire_on_commit=False)
