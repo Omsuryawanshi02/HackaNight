@@ -21,7 +21,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import decode_jwt
+from app.core.supabase import sync_supabase_user, verify_supabase_token
 from app.db.models import ProjectMember, User
 from app.db.session import get_db_session
 
@@ -112,29 +112,16 @@ async def get_current_user(
     authorization: str | None = Header(default=None),
     db: AsyncSession = Depends(get_db_session),
 ) -> User:
-    """Resolve the current user from the Authorization: Bearer <token> header."""
+    """Resolve the current user from the Authorization: Bearer <token> header via Supabase Auth."""
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing or malformed Authorization header",
         )
     token = authorization.split(" ", 1)[1].strip()
-    try:
-        payload = decode_jwt(token)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-        )
-    user_id = payload.get("sub")
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token missing subject",
-        )
-    result = await db.execute(select(User).where(User.id == uuid.UUID(user_id)))
-    user = result.scalar_one_or_none()
-    if user is None or not user.is_active:
+    user_data = await verify_supabase_token(token)
+    user = await sync_supabase_user(db, user_data)
+    if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive",

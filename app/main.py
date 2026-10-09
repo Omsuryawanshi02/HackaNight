@@ -89,6 +89,38 @@ def create_app() -> FastAPI:
             "api": "/api/v1",
         }
 
+    # Model discovery endpoint (OpenAI / VLM compatible)
+    @app.get("/v1/models", tags=["models"])
+    @app.get("/api/v1/models", tags=["models"])
+    async def list_models() -> dict:
+        return {
+            "object": "list",
+            "data": [
+                {
+                    "id": "qwen2.5-vl-7b-instruct",
+                    "object": "model",
+                    "created": 1700000000,
+                    "owned_by": "siteaudit",
+                },
+                {
+                    "id": "gemini-1.5-flash",
+                    "object": "model",
+                    "created": 1700000000,
+                    "owned_by": "google",
+                },
+            ],
+        }
+
+    @app.get("/v1/models/{model_id:path}", tags=["models"])
+    @app.get("/api/v1/models/{model_id:path}", tags=["models"])
+    async def get_model(model_id: str) -> dict:
+        return {
+            "id": model_id,
+            "object": "model",
+            "created": 1700000000,
+            "owned_by": "siteaudit",
+        }
+
     # Register API routers
     _register_routers(app)
 

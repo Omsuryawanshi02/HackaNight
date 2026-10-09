@@ -30,25 +30,25 @@ def _to_sync_url(url: str) -> str:
 
 USERS = [
     {
-        "email": "admin@siteaudit.local",
+        "email": "admin@siteaudit.io",
         "password": "admin1234",
         "full_name": "Site Administrator",
         "role": "ADMIN",
     },
     {
-        "email": "supervisor@siteaudit.local",
+        "email": "supervisor@siteaudit.io",
         "password": "supervisor1234",
         "full_name": "Jane Supervisor",
         "role": "SITE_SUPERVISOR",
     },
     {
-        "email": "store@siteaudit.local",
+        "email": "store@siteaudit.io",
         "password": "store1234",
         "full_name": "Raj Store In-Charge",
         "role": "STORE_INCHARGE",
     },
     {
-        "email": "auditor@siteaudit.local",
+        "email": "auditor@siteaudit.io",
         "password": "auditor1234",
         "full_name": "Priya Auditor",
         "role": "PROJECT_AUDITOR",
@@ -114,6 +114,39 @@ def seed() -> None:
         session.commit()
 
     engine.dispose()
+
+    # If Supabase URL and service role key are configured, also ensure users exist in Supabase
+    if settings.supabase_url and settings.supabase_service_role_key:
+        try:
+            import httpx
+            sb_url = settings.supabase_url.rstrip("/") + "/auth/v1/admin/users"
+            sb_headers = {
+                "apikey": settings.supabase_service_role_key,
+                "Authorization": f"Bearer {settings.supabase_service_role_key}",
+                "Content-Type": "application/json",
+            }
+            print("Syncing seed users with Supabase Auth...")
+            for spec in USERS:
+                sb_body = {
+                    "email": spec["email"],
+                    "password": spec["password"],
+                    "email_confirm": True,
+                    "user_metadata": {
+                        "full_name": spec["full_name"],
+                        "role": spec["role"],
+                    },
+                }
+                try:
+                    r = httpx.post(sb_url, headers=sb_headers, json=sb_body, timeout=5.0)
+                    if r.status_code in (200, 201):
+                        print(f"  [Supabase] Provisioned {spec['email']}")
+                    else:
+                        print(f"  [Supabase] {spec['email']}: status {r.status_code}")
+                except Exception as exc:
+                    print(f"  [Supabase] Note: could not create {spec['email']}: {exc}")
+        except ImportError:
+            pass
+
     print("Seeded users:")
     for spec in USERS:
         print(f"  {spec['email']} ({spec['role']}) password={spec['password']}")
@@ -122,3 +155,4 @@ def seed() -> None:
 
 if __name__ == "__main__":
     seed()
+
