@@ -1,114 +1,98 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { 
-  authLogin, 
-  authLogout, 
-  authGetMe, 
-  authChangePassword, 
-  getAuthToken, 
-  clearAuthToken 
-} from '../services/api';
+import { authLogin, authLogout, authGetMe, getAuthToken, MOCK_USERS } from '../services/api';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(getAuthToken());
+  const [role, setRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authError, setAuthError] = useState(null);
 
-  // Validate session on app initialization
-  const verifySession = useCallback(async () => {
-    const storedToken = getAuthToken();
-    if (!storedToken) {
-      setUser(null);
-      setIsLoading(false);
-      return;
-    }
-
+  const initAuth = useCallback(async () => {
+    setIsLoading(true);
     try {
+      const token = getAuthToken();
+      if (!token) {
+        setUser(null);
+        setRole(null);
+        setIsLoading(false);
+        return;
+      }
+
       const res = await authGetMe();
       if (res.success && res.user) {
         setUser(res.user);
-        setToken(storedToken);
+        setRole(res.user.role || 'Main Supervisor');
       } else {
         clearAuthToken();
         setUser(null);
-        setToken(null);
+        setRole(null);
       }
     } catch (err) {
       clearAuthToken();
       setUser(null);
-      setToken(null);
+      setRole(null);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    verifySession();
-  }, [verifySession]);
+    initAuth();
+  }, [initAuth]);
 
   const login = async (email, password) => {
     setIsLoading(true);
-    setAuthError(null);
     const res = await authLogin(email, password);
-    setIsLoading(false);
-
-    if (res.success && res.data) {
+    if (res.success && res.data?.user) {
       setUser(res.data.user);
-      setToken(res.data.token);
-      return { success: true, user: res.data.user };
-    } else {
-      setAuthError(res.error);
-      return { success: false, error: res.error };
+      setRole(res.data.user.role || 'Main Supervisor');
     }
-  };
-
-  const logout = async () => {
-    await authLogout();
-    setUser(null);
-    setToken(null);
-  };
-
-  const changePassword = async (oldPassword, newPassword) => {
-    const res = await authChangePassword(oldPassword, newPassword);
-    if (res.success) {
-      if (user) {
-        setUser({ ...user, must_change_password: false });
-      }
-    }
+    setIsLoading(false);
     return res;
   };
 
-  const updateUser = (updatedFields) => {
-    setUser(prev => prev ? ({ ...prev, ...updatedFields }) : null);
+  const logout = async () => {
+    setIsLoading(true);
+    await authLogout();
+    setUser(null);
+    setRole(null);
+    setIsLoading(false);
   };
 
-  const value = {
-    user,
-    token,
-    role: user ? user.role : null,
-    isAuthenticated: !!user,
-    isLoading,
-    authError,
-    login,
-    logout,
-    changePassword,
-    updateUser,
-    refreshUser: verifySession
-  };
+  const isAuthenticated = Boolean(user && getAuthToken());
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        role,
+        setRole,
+        isAuthenticated,
+        isLoading,
+        login,
+        logout,
+        refreshAuth: initAuth
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    return {
+      user: null,
+      role: null,
+      isAuthenticated: false,
+      isLoading: false,
+      login: async () => ({ success: false }),
+      logout: async () => { },
+      refreshAuth: async () => { }
+    };
   }
   return context;
-};
+}

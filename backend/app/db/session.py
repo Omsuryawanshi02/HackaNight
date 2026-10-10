@@ -32,7 +32,16 @@ def init_db(database_url: str) -> None:
     connect_args = {}
     if _is_supabase_pooler_url(norm_url):
         connect_args = {"statement_cache_size": 0}
-    engine = create_async_engine(norm_url, echo=False, future=True, connect_args=connect_args)
+    engine = create_async_engine(
+        norm_url, 
+        echo=False, 
+        future=True, 
+        pool_size=3,
+        max_overflow=2,
+        pool_recycle=300,
+        pool_pre_ping=True,
+        connect_args=connect_args
+    )
     set_engine(engine)
     global _session_factory
     _session_factory = async_sessionmaker(engine, expire_on_commit=False)

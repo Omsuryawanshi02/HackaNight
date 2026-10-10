@@ -1,14 +1,14 @@
 import React from 'react';
-import { 
-  Users, 
-  Building2, 
-  ShieldCheck, 
-  FileText, 
-  AlertTriangle, 
-  UserPlus, 
-  ArrowRight, 
-  Clock, 
-  CheckCircle2, 
+import {
+  Users,
+  Building2,
+  ShieldCheck,
+  FileText,
+  AlertTriangle,
+  UserPlus,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
   HardHat,
   Layers,
   UserCheck
@@ -16,11 +16,11 @@ import {
 import StatCard from '../components/StatCard';
 import StatusBadge from '../components/StatusBadge';
 
-export default function AdminDashboard({ 
-  stats, 
-  recentAudits, 
-  anomalies, 
-  onNavigate 
+export default function AdminDashboard({
+  stats,
+  recentAudits,
+  anomalies,
+  onNavigate
 }) {
   const pendingCount = recentAudits.filter(a => a.status === 'Pending Review').length;
 
@@ -103,7 +103,7 @@ export default function AdminDashboard({
 
       {/* Role Breakdown Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div 
+        <div
           onClick={() => onNavigate('user-management')}
           className="porcelain-card p-5 cursor-pointer hover:border-[#D6B238] transition flex items-center justify-between"
         >
@@ -119,7 +119,7 @@ export default function AdminDashboard({
           <ArrowRight className="w-4 h-4 text-[#6F7889]" />
         </div>
 
-        <div 
+        <div
           onClick={() => onNavigate('user-management')}
           className="porcelain-card p-5 cursor-pointer hover:border-[#D6B238] transition flex items-center justify-between"
         >
@@ -135,7 +135,7 @@ export default function AdminDashboard({
           <ArrowRight className="w-4 h-4 text-[#6F7889]" />
         </div>
 
-        <div 
+        <div
           onClick={() => onNavigate('user-management')}
           className="porcelain-card p-5 cursor-pointer hover:border-[#727C3E] transition flex items-center justify-between"
         >
@@ -217,8 +217,8 @@ export default function AdminDashboard({
 
           <div className="space-y-3">
             {anomalies.slice(0, 3).map((anom) => (
-              <div 
-                key={anom.id} 
+              <div
+                key={anom.id}
                 onClick={() => onNavigate('inventory-anomalies')}
                 className="p-3.5 rounded-xl border border-[#E4D8BE] bg-[#EDE5D6]/30 hover:bg-[#EDE5D6]/60 transition cursor-pointer"
               >

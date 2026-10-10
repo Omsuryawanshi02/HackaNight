@@ -26,16 +26,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Ensure tables exist in database (both SQLite and Supabase Postgres)
     try:
-        from app.db.session import _is_supabase_pooler_url, _normalize_database_url
-        db_norm = _normalize_database_url(settings.database_url)
-        connect_args = {"statement_cache_size": 0} if _is_supabase_pooler_url(db_norm) else {}
-        engine = create_async_engine(db_norm, echo=False, connect_args=connect_args)
+        from app.db.base import get_engine
+
+        engine = get_engine()
         async with engine.begin() as conn:
             # Import models so they register with Base.metadata
             import app.db.models  # noqa: F401
 
             await conn.run_sync(Base.metadata.create_all)
-        await engine.dispose()
         logger.info("Database tables verified/created.")
     except Exception as exc:
         logger.warning("Auto table creation note (Alembic can also be run): %s", exc)
@@ -63,7 +61,15 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # tighten in production
+        allow_origins=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:8000",
+            "http://127.0.0.1:8000",
+        ],
+        allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -189,6 +195,14 @@ def _register_routers(app: FastAPI) -> None:
         api_router.include_router(claims_router, prefix="/claims", tags=["claims"])
     except ImportError as e:  # noqa: BLE001
         logger.warning("Claims router not yet available: %s", e)
+
+    # Frontend REST API (/api/...)
+    try:
+        from app.api.frontend_routes import router as frontend_router
+
+        app.include_router(frontend_router)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Frontend router error: %s", e)
 
     app.include_router(api_router)
 

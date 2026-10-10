@@ -23,9 +23,127 @@ export default function Dashboard({
   materialsData, 
   recentAudits, 
   anomalies, 
+  projects = [],
+  selectedProjectId,
+  onSelectProject,
   onNavigate,
   onSelectAuditForReview
 }) {
+  const currentProject = (projects && projects.length > 0)
+    ? (projects.find(p => p.id === selectedProjectId) || projects[0])
+    : { name: 'Riverside Commercial Tower A', completionPercent: 76 };
+
+  const currentProgressPct = currentProject.completionPercent || currentProject.actualProgress || 76;
+
+  const formatDisplayDate = (d) => {
+    try {
+      const dateObj = d instanceof Date ? d : new Date(d);
+      if (isNaN(dateObj.getTime())) return String(d || 'Recent');
+      return dateObj.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch {
+      return 'Recent';
+    }
+  };
+
+  const formatDisplayDateTime = (d) => {
+    try {
+      const dateObj = d instanceof Date ? d : new Date(d);
+      if (isNaN(dateObj.getTime())) return String(d || 'Recent');
+      return dateObj.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + 
+             dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return 'Recent';
+    }
+  };
+
+  const now = new Date();
+  const dCompleted = new Date(now);
+  dCompleted.setDate(now.getDate() - 25);
+  const dActive = new Date(now);
+  dActive.setDate(now.getDate() - 3);
+  const dNext = new Date(now);
+  dNext.setDate(now.getDate() + 20);
+  const dFuture = new Date(now);
+  dFuture.setDate(now.getDate() + 65);
+
+  const dynamicMilestones = [
+    { name: 'Foundation', status: 'Verified', percent: 100, date: formatDisplayDate(dCompleted) },
+    { name: 'Structure', status: currentProgressPct >= 80 ? 'Verified' : 'In Progress', percent: Math.min(100, Math.max(40, currentProgressPct)), date: formatDisplayDate(dActive) },
+    { name: 'Electrical', status: 'In Progress', percent: Math.round(currentProgressPct * 0.63), date: formatDisplayDate(dNext) },
+    { name: 'Finishing', status: currentProgressPct > 80 ? 'In Progress' : 'Pending', percent: Math.round(currentProgressPct * 0.24), date: formatDisplayDate(dFuture) }
+  ];
+
+  const evidenceCards = (recentAudits && recentAudits.length > 0)
+    ? recentAudits.slice(0, 3).map((a, idx) => ({
+        id: a.id || idx,
+        title: a.milestone || (idx === 0 ? 'Foundation - Zone A' : idx === 1 ? 'Structure - Level 3' : 'Electrical - Block 8'),
+        date: a.submittedAt || a.submissionDate || a.timestamp || new Date(Date.now() - (idx + 1) * 3600000 * 8),
+        location: a.location || 'Lat 18.5205, Long 73.1692',
+        status: a.status || (idx < 2 ? 'Verified' : 'Pending Review'),
+        image: a.evidenceImage || a.photoUrl || (idx === 0 ? 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80' : idx === 1 ? 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80')
+      }))
+    : [
+        {
+          id: 'EVD-1',
+          title: 'Foundation - Zone A',
+          date: new Date(Date.now() - 3600000 * 18),
+          location: 'Lat 18.5205, Long 73.1692',
+          status: 'Verified',
+          image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80'
+        },
+        {
+          id: 'EVD-2',
+          title: 'Structure - Level 3',
+          date: new Date(Date.now() - 3600000 * 8),
+          location: 'Lat 18.5205, Long 73.1692',
+          status: 'Verified',
+          image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80'
+        },
+        {
+          id: 'EVD-3',
+          title: 'Electrical - Block 8',
+          date: new Date(Date.now() - 3600000 * 2),
+          location: 'Lat 18.5205, Long 73.1692',
+          status: 'Pending Review',
+          image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80'
+        }
+      ];
+
+  const tableAudits = (recentAudits && recentAudits.length > 0)
+    ? recentAudits.slice(0, 5)
+    : [
+        {
+          id: 'AUD-01',
+          date: new Date(Date.now() - 3600000 * 5),
+          activityType: 'Material Check',
+          material: 'Cement (50kg bags)',
+          quantity: '120 bags',
+          variance: '-1.7%',
+          status: 'Verified',
+          performedBy: 'Site Supervisor'
+        },
+        {
+          id: 'AUD-02',
+          date: new Date(Date.now() - 3600000 * 14),
+          activityType: 'Progress Verification',
+          material: 'Structure - Level 3',
+          quantity: '—',
+          variance: '—',
+          status: 'Verified',
+          performedBy: 'Project Auditor'
+        },
+        {
+          id: 'AUD-03',
+          date: new Date(Date.now() - 3600000 * 22),
+          activityType: 'Live Site Capture',
+          material: 'Electrical - Block 8',
+          quantity: '45 conduit runs',
+          variance: '+3.2%',
+          status: 'Pending Review',
+          performedBy: 'Site Supervisor'
+        }
+      ];
+
   return (
     <div className="space-y-6">
       {/* KPI Cards Row (matching reference image) */}
@@ -107,110 +225,76 @@ export default function Dashboard({
 
       {/* Middle Grid: Project Progress & Evidence Verification (matching reference screenshot) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Project Progress (5 cols) */}
+        {/* Left Column: Project Progress (Dynamic & Functional) */}
         <div className="lg:col-span-5 porcelain-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E4D8BE]">
-              <h2 className="text-base font-bold text-[#29231D] font-['Outfit']">Project Progress</h2>
-              <span className="text-xs font-bold text-[#727C3E] bg-[#727C3E]/15 px-2.5 py-1 rounded-full border border-[#727C3E]/30">
-                76% Overall Progress
-              </span>
+              <div>
+                <h2 className="text-base font-bold text-[#29231D] font-['Outfit']">Project Progress</h2>
+                <p className="text-[10px] text-[#6F7889] font-medium truncate max-w-[200px]">{currentProject.name || 'Site Progress'}</p>
+              </div>
+              <button 
+                onClick={() => onNavigate('projects')}
+                className="text-xs font-bold text-[#727C3E] bg-[#727C3E]/15 hover:bg-[#727C3E]/25 px-2.5 py-1 rounded-full border border-[#727C3E]/30 transition cursor-pointer"
+                title="View full project details & milestones"
+              >
+                {currentProgressPct}% Overall Progress
+              </button>
             </div>
 
             <div className="mt-4 w-full bg-[#EDE5D6] h-2.5 rounded-full overflow-hidden">
-              <div className="bg-[#727C3E] h-full rounded-full w-[76%] transition-all"></div>
+              <div className="bg-[#727C3E] h-full rounded-full transition-all duration-500" style={{ width: `${currentProgressPct}%` }}></div>
             </div>
 
-            {/* Milestone List */}
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Foundation</p>
-                    <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
-                      <Check className="w-3 h-3" /> Verified
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#727C3E] h-full w-[100%]"></div>
+            {/* Dynamic Milestone List */}
+            <div className="mt-6 space-y-3.5">
+              {dynamicMilestones.map((m, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => onNavigate('photo-audit')}
+                  className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE] hover:border-[#D6B238] transition cursor-pointer group shadow-xs"
+                  title={`Click to capture evidence for ${m.name}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#D6B238]/20 text-[#29231D] flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                      <Building2 className="w-4 h-4 text-[#29231D]" />
                     </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">100%</span>
-                  </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">12 Aug 2026</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Structure</p>
-                    <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                      In Progress
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B238] h-full w-[82%]"></div>
+                    <div>
+                      <p className="text-xs font-bold text-[#29231D] group-hover:text-[#8f7215] transition">{m.name}</p>
+                      {m.status === 'Verified' ? (
+                        <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
+                          <Check className="w-3 h-3" /> Verified
+                        </span>
+                      ) : m.status === 'In Progress' ? (
+                        <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                          In Progress
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                          Pending
+                        </span>
+                      )}
                     </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">82%</span>
                   </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">30 Oct 2026</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Electrical</p>
-                    <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                      In Progress
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B238] h-full w-[48%]"></div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${m.percent === 100 ? 'bg-[#727C3E]' : 'bg-[#D6B238]'}`} 
+                          style={{ width: `${m.percent}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-extrabold text-[#29231D]">{m.percent}%</span>
                     </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">48%</span>
-                  </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">20 Dec 2026</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Finishing</p>
-                    <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                      Pending
-                    </span>
+                    <p className="text-[10px] text-[#6F7889] mt-1 font-medium">{m.date}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B238] h-full w-[18%]"></div>
-                    </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">18%</span>
-                  </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">28 Feb 2027</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Evidence Verification (7 cols matching reference image cards) */}
+        {/* Right Column: Evidence Verification */}
         <div className="lg:col-span-7 porcelain-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E4D8BE]">
@@ -225,89 +309,48 @@ export default function Dashboard({
 
             {/* 3 Evidence Cards Side-by-Side */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
-              {/* Card 1 */}
-              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
-                <div className="h-32 bg-slate-200 relative overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=600&q=80" 
-                    alt="Foundation Zone A" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                </div>
-                <div className="p-3">
-                  <h3 className="text-xs font-bold text-[#29231D]">Foundation - Zone A</h3>
-                  <div className="mt-1 space-y-0.5 text-[10px] text-[#6F7889]">
-                    <p className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#D6B238]" /> 08 Oct, 2026 09:24 AM
-                    </p>
-                    <p className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#D6B238]" /> Lat 18.5205, Long 73.1692
-                    </p>
+              {evidenceCards.map((card) => (
+                <div 
+                  key={card.id}
+                  onClick={() => onNavigate('photo-audit')}
+                  className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
+                >
+                  <div className="h-32 bg-slate-200 relative overflow-hidden">
+                    <img 
+                      src={card.image} 
+                      alt={card.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                   </div>
-                  <div className="mt-2.5">
-                    <span className="badge-verified px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
-                      <Check className="w-3 h-3" /> Verified
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
-                <div className="h-32 bg-slate-200 relative overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" 
-                    alt="Structure Level 3" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                </div>
-                <div className="p-3">
-                  <h3 className="text-xs font-bold text-[#29231D]">Structure - Level 3</h3>
-                  <div className="mt-1 space-y-0.5 text-[10px] text-[#6F7889]">
-                    <p className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#D6B238]" /> 08 Oct, 2026 04:11 PM
-                    </p>
-                    <p className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#D6B238]" /> Lat 18.5205, Long 73.1692
-                    </p>
-                  </div>
-                  <div className="mt-2.5">
-                    <span className="badge-verified px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
-                      <Check className="w-3 h-3" /> Verified
-                    </span>
+                  <div className="p-3">
+                    <h3 className="text-xs font-bold text-[#29231D] truncate">{card.title}</h3>
+                    <div className="mt-1 space-y-0.5 text-[10px] text-[#6F7889]">
+                      <p className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#D6B238]" /> {formatDisplayDateTime(card.date)}
+                      </p>
+                      <p className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-[#D6B238]" /> {card.location}
+                      </p>
+                    </div>
+                    <div className="mt-2.5">
+                      {card.status === 'Verified' || card.status === 'Approved' ? (
+                        <span className="badge-verified px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
+                          <Check className="w-3 h-3" /> Verified
+                        </span>
+                      ) : (
+                        <span className="badge-pending px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
+                          <AlertTriangle className="w-3 h-3" /> Review Required
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
-                <div className="h-32 bg-slate-200 relative overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" 
-                    alt="Electrical Block 8" 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                </div>
-                <div className="p-3">
-                  <h3 className="text-xs font-bold text-[#29231D]">Electrical - Block 8</h3>
-                  <div className="mt-1 space-y-0.5 text-[10px] text-[#6F7889]">
-                    <p className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#D6B238]" /> 08 Oct, 2026 10:15 AM
-                    </p>
-                    <p className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#D6B238]" /> Lat 18.5205, Long 73.1692
-                    </p>
-                  </div>
-                  <div className="mt-2.5">
-                    <span className="badge-pending px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
-                      <AlertTriangle className="w-3 h-3" /> Review Required
-                    </span>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -342,59 +385,44 @@ export default function Dashboard({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E4D8BE]">
-              <tr className="hover:bg-[#EDE5D6]/40 transition">
-                <td className="px-4 py-3.5 text-[#6F7889] font-medium">Oct 09, 2026 09:24 AM</td>
-                <td className="px-4 py-3.5">
-                  <span className="inline-flex items-center gap-1.5 font-bold text-[#29231D]">
-                    <Package className="w-4 h-4 text-[#D6B238]" /> Material Check
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 font-semibold text-[#29231D]">Cement (50kg bags)</td>
-                <td className="px-4 py-3.5 font-semibold text-[#29231D]">120 bags</td>
-                <td className="px-4 py-3.5 font-bold text-[#727C3E]">-1.7%</td>
-                <td className="px-4 py-3.5">
-                  <span className="badge-verified px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
-                    <Check className="w-3 h-3" /> Verified
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 font-medium text-[#6F7889]">Site Supervisor</td>
-              </tr>
-
-              <tr className="hover:bg-[#EDE5D6]/40 transition">
-                <td className="px-4 py-3.5 text-[#6F7889] font-medium">Oct 09, 2026 04:11 PM</td>
-                <td className="px-4 py-3.5">
-                  <span className="inline-flex items-center gap-1.5 font-bold text-[#29231D]">
-                    <FileCheck2 className="w-4 h-4 text-[#D6B238]" /> Progress Verification
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 font-semibold text-[#29231D]">Structure - Level 3</td>
-                <td className="px-4 py-3.5 text-[#6F7889]">—</td>
-                <td className="px-4 py-3.5 text-[#6F7889]">—</td>
-                <td className="px-4 py-3.5">
-                  <span className="badge-verified px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
-                    <Check className="w-3 h-3" /> Verified
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 font-medium text-[#6F7889]">Project Auditor</td>
-              </tr>
-
-              <tr className="hover:bg-[#EDE5D6]/40 transition">
-                <td className="px-4 py-3.5 text-[#6F7889] font-medium">Oct 09, 2026 11:05 AM</td>
-                <td className="px-4 py-3.5">
-                  <span className="inline-flex items-center gap-1.5 font-bold text-[#29231D]">
-                    <Camera className="w-4 h-4 text-[#D6B238]" /> Live Site Capture
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 font-semibold text-[#29231D]">Electrical - Block 8</td>
-                <td className="px-4 py-3.5 text-[#6F7889]">45 conduit runs</td>
-                <td className="px-4 py-3.5 font-bold text-[#8f7215]">+3.2%</td>
-                <td className="px-4 py-3.5">
-                  <span className="badge-pending px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
-                    <Clock className="w-3 h-3" /> Pending Review
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 font-medium text-[#6F7889]">Site Supervisor</td>
-              </tr>
+              {tableAudits.map((a, idx) => (
+                <tr key={a.id || idx} className="hover:bg-[#EDE5D6]/40 transition">
+                  <td className="px-4 py-3.5 text-[#6F7889] font-medium">
+                    {formatDisplayDateTime(a.submittedAt || a.submissionDate || a.date || a.timestamp)}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <span className="inline-flex items-center gap-1.5 font-bold text-[#29231D]">
+                      {(a.auditType || a.activityType || '').includes('Material') ? (
+                        <Package className="w-4 h-4 text-[#D6B238]" />
+                      ) : (a.auditType || a.activityType || '').includes('Progress') || (a.auditType || a.activityType || '').includes('Milestone') ? (
+                        <FileCheck2 className="w-4 h-4 text-[#D6B238]" />
+                      ) : (
+                        <Camera className="w-4 h-4 text-[#D6B238]" />
+                      )}
+                      {a.activityType || a.auditType || 'Site Inspection'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 font-semibold text-[#29231D]">{a.material || a.milestone || 'Foundation Inspection'}</td>
+                  <td className="px-4 py-3.5 font-semibold text-[#29231D]">
+                    {a.quantity || (a.claimedPercentage ? `${a.claimedPercentage}% claimed` : '—')}
+                  </td>
+                  <td className={`px-4 py-3.5 font-bold ${(a.variance || '').startsWith('-') ? 'text-[#727C3E]' : 'text-[#8f7215]'}`}>
+                    {a.variance || (a.claimedPercentage ? `${a.claimedPercentage >= 100 ? '0%' : '-' + (100 - a.claimedPercentage) + '%'}` : '—')}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    {a.status === 'Verified' || a.status === 'Approved' ? (
+                      <span className="badge-verified px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
+                        <Check className="w-3 h-3" /> Verified
+                      </span>
+                    ) : (
+                      <span className="badge-pending px-2.5 py-1 rounded-full text-[10px] flex items-center gap-1 w-fit">
+                        <Clock className="w-3 h-3" /> Pending Review
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3.5 font-medium text-[#6F7889]">{a.performedBy || a.submittedBy || 'Site Supervisor'}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

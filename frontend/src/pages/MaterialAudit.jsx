@@ -31,7 +31,7 @@ export const MATERIAL_PRESETS = [
     material: 'Ultratech OPC 53 Cement',
     unit: 'Bags',
     supplier: 'Apex Building Solutions Ltd',
-    challanNo: 'CH-2026-8841',
+    challanNo: `CH-${new Date().getFullYear()}-8841`,
     challanQty: 1000,
     receivedQty: 960,
     openingStock: 250,
@@ -89,7 +89,7 @@ export default function MaterialAudit({
     material: 'Ultratech OPC 53 Cement',
     unit: 'Bags',
     supplier: 'Apex Building Solutions Ltd',
-    challanNo: 'CH-2026-8841',
+    challanNo: `CH-${new Date().getFullYear()}-8841`,
     challanQty: 1000,
     receivedQty: 960,
     openingStock: 250,
@@ -225,7 +225,7 @@ export default function MaterialAudit({
 
   const handleSave = async () => {
     const newRecord = {
-      id: `MAT-2026-${Math.floor(100 + Math.random() * 900)}`,
+      id: `MAT-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
       date: new Date().toISOString().split('T')[0],
       project: formData.projectName,
       material: formData.material,

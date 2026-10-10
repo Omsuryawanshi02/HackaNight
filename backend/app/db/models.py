@@ -30,7 +30,7 @@ from app.db.base import Base
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -286,11 +286,17 @@ class ClaimPhoto(Base):
     __tablename__ = "claim_photos"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    claim_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("progress_claims.id", ondelete="CASCADE"), nullable=False, index=True
+    claim_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("progress_claims.id", ondelete="CASCADE"), nullable=True, index=True
     )
     storage_key: Mapped[str] = mapped_column(String(500), nullable=False, unique=True, index=True)
     sha256: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    uploaded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow
+    )
+    captured_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     phash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     dhash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     exif_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)

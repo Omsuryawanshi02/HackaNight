@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Toast from './components/Toast';
 
 // Pages
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -16,6 +17,8 @@ import InventoryAnomalies from './pages/InventoryAnomalies';
 import AuditorReview from './pages/AuditorReview';
 import AuditReports from './pages/AuditReports';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
+import Projects from './pages/Projects';
 
 // Initial Sample Data
 import { 
@@ -29,7 +32,7 @@ import {
   INITIAL_REPORTS 
 } from './data/sampleData';
 
-import { checkBackendHealth } from './services/api';
+import { checkBackendHealth, getProjects, getAudits, getDashboardData } from './services/api';
 
 // Role → default landing page mapping
 const DEFAULT_TAB_FOR_ROLE = {
@@ -42,9 +45,9 @@ const DEFAULT_TAB_FOR_ROLE = {
 };
 
 const ALL_ACCESSIBLE_TABS = [
-  'admin-dashboard', 'dashboard', 'user-management', 'activity-logs',
+  'landing', 'admin-dashboard', 'dashboard', 'projects', 'user-management', 'activity-logs',
   'photo-audit', 'material-audit', 'inventory-anomalies',
-  'auditor-review', 'audit-reports', 'settings'
+  'auditor-review', 'audit-reports', 'settings', 'profile'
 ];
 
 // Role → allowed tabs (All dashboards and audit features accessible to all authenticated roles)
@@ -61,11 +64,12 @@ export default function App() {
   const { user, role, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const [currentTab, setCurrentTab] = useState('dashboard');
+  const [unauthView, setUnauthView] = useState('landing');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [backendConnected, setBackendConnected] = useState(false);
 
   // Core App Data
-  const [projects] = useState(INITIAL_PROJECTS);
+  const [projects, setProjects] = useState(INITIAL_PROJECTS);
   const [selectedProjectId, setSelectedProjectId] = useState(INITIAL_PROJECTS[0].id);
   const [stats, setStats] = useState(INITIAL_DASHBOARD_STATS);
   const [milestonesData] = useState(MILESTONE_PROGRESS_DATA);
@@ -93,14 +97,42 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Check Backend Connection Health
+  // Fetch live backend data when connected
+  const syncLiveBackendData = useCallback(async () => {
+    try {
+      const [projRes, auditRes, dashRes] = await Promise.all([
+        getProjects(),
+        getAudits(),
+        getDashboardData()
+      ]);
+
+      if (projRes.success && Array.isArray(projRes.data) && projRes.data.length > 0) {
+        setProjects(projRes.data);
+      }
+      if (auditRes.success && Array.isArray(auditRes.data) && auditRes.data.length > 0) {
+        setAuditReviews(auditRes.data);
+      }
+      if (dashRes.success && dashRes.data) {
+        setStats(prev => ({ ...prev, ...dashRes.data }));
+      }
+    } catch (err) {
+      console.warn('Backend data sync notice:', err);
+    }
+  }, []);
+
+  // Check Backend Connection Health (initial + recurring check)
   const verifyBackend = useCallback(async () => {
     const res = await checkBackendHealth();
     setBackendConnected(res.connected);
-  }, []);
+    if (res.connected) {
+      syncLiveBackendData();
+    }
+  }, [syncLiveBackendData]);
 
   useEffect(() => {
     verifyBackend();
+    const interval = setInterval(verifyBackend, 12000);
+    return () => clearInterval(interval);
   }, [verifyBackend]);
 
   // Set default tab when user authenticates
@@ -108,13 +140,14 @@ export default function App() {
     if (isAuthenticated && role) {
       const defaultTab = DEFAULT_TAB_FOR_ROLE[role] || 'dashboard';
       setCurrentTab(defaultTab);
+    } else if (!isAuthenticated) {
+      setUnauthView('landing');
     }
   }, [isAuthenticated, role]);
 
   // Navigation & tab access with alias handling
   const handleSetTab = useCallback((targetTab) => {
     const ALIASES = {
-      'projects': 'settings',
       'all-audits': 'auditor-review'
     };
     const tab = ALIASES[targetTab] || targetTab;
@@ -178,7 +211,7 @@ export default function App() {
     const targetAudit = auditReviews.find(r => r.id === id);
     if (targetAudit) {
       const newReport = {
-        id: `REP-2026-${Math.floor(100 + Math.random() * 900)}`,
+        id: `REP-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
         title: `${targetAudit.milestone} Formal Certification`,
         project: targetAudit.project,
         milestone: targetAudit.milestone,
@@ -240,12 +273,24 @@ export default function App() {
     );
   }
 
-  // ─── Login Screen ──────────────────────────────────────────────────
+  // ─── Unauthenticated Screens (Public Landing & Login) ──────────────
   if (!isAuthenticated) {
+    if (unauthView === 'login') {
+      return (
+        <>
+          <Toast toasts={toasts} onDismiss={dismissToast} />
+          <Login onBackToLanding={() => setUnauthView('landing')} />
+        </>
+      );
+    }
+
     return (
       <>
         <Toast toasts={toasts} onDismiss={dismissToast} />
-        <Login />
+        <LandingPage
+          onNavigateToLogin={() => setUnauthView('login')}
+          onNavigateToApp={() => setUnauthView('login')}
+        />
       </>
     );
   }
@@ -278,10 +323,55 @@ export default function App() {
           onSelectProject={setSelectedProjectId}
           backendConnected={backendConnected}
           onOpenQuickAudit={() => handleSetTab('photo-audit')}
+          onOpenProfile={() => handleSetTab('profile')}
+          onProjectCreated={(newProject) => {
+            setProjects(prev => {
+              const filtered = prev.filter(p => p.id !== newProject.id && p.code !== newProject.code);
+              return [newProject, ...filtered];
+            });
+            setSelectedProjectId(newProject.id);
+            syncLiveBackendData();
+            addToast({
+              type: 'success',
+              title: 'Project Registered in Supabase',
+              message: `Project "${newProject.name}" has been registered and synced with Supabase.`
+            });
+          }}
         />
 
         {/* Page Content Viewport */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {/* ── Public Landing Overview (Authenticated View) ── */}
+          {currentTab === 'landing' && (
+            <div className="-m-4 sm:-m-6 lg:-m-8">
+              <LandingPage
+                onNavigateToLogin={() => handleSetTab('dashboard')}
+                onNavigateToApp={() => handleSetTab('dashboard')}
+              />
+            </div>
+          )}
+
+          {/* ── Profile Page ── */}
+          {currentTab === 'profile' && (
+            <Profile
+              onShowToast={addToast}
+              projects={projects}
+              backendConnected={backendConnected}
+            />
+          )}
+
+          {/* ── My Projects Page (Site Supervisor) ── */}
+          {currentTab === 'projects' && (
+            <Projects
+              projects={projects}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={setSelectedProjectId}
+              onNavigate={handleSetTab}
+              onShowToast={addToast}
+              backendConnected={backendConnected}
+            />
+          )}
+
           {/* ── Admin Pages ── */}
           {currentTab === 'admin-dashboard' && (
             <AdminDashboard
@@ -315,6 +405,9 @@ export default function App() {
               materialsData={materialsData}
               recentAudits={auditReviews}
               anomalies={anomalies}
+              projects={projects}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={setSelectedProjectId}
               onNavigate={handleSetTab}
               onSelectAuditForReview={handleSelectAuditForReview}
             />
@@ -338,7 +431,7 @@ export default function App() {
               onSaveAudit={handleSaveMaterialAudit}
               onGenerateReport={(form, calc) => {
                 const reportRecord = {
-                  id: `REP-2026-${Math.floor(100 + Math.random() * 900)}`,
+                  id: `REP-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
                   title: `${form.material} Reconciliation Statement`,
                   project: form.projectName,
                   milestone: `${form.material} Batch Verification`,

@@ -1,65 +1,65 @@
-// SiteSure AI - API Service with Authentication & RBAC Support
+// PRAMAAN AI - API Service with Authentication & RBAC Support
 // Connects to FastAPI REST API at http://127.0.0.1:8000
 
 export const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000';
 
 export const getApiBaseUrl = () => {
-  return localStorage.getItem('sitesure_api_url') || DEFAULT_API_BASE_URL;
+  return localStorage.getItem('PRAMAAN_api_url') || DEFAULT_API_BASE_URL;
 };
 
 export const setApiBaseUrl = (url) => {
-  localStorage.setItem('sitesure_api_url', url);
+  localStorage.setItem('PRAMAAN_api_url', url);
 };
 
 export const getAuthToken = () => {
-  return localStorage.getItem('sitesure_auth_token') || null;
+  return localStorage.getItem('PRAMAAN_auth_token') || null;
 };
 
 export const setAuthToken = (token) => {
   if (token) {
-    localStorage.setItem('sitesure_auth_token', token);
+    localStorage.setItem('PRAMAAN_auth_token', token);
   } else {
-    localStorage.removeItem('sitesure_auth_token');
+    localStorage.removeItem('PRAMAAN_auth_token');
   }
 };
 
 export const clearAuthToken = () => {
-  localStorage.removeItem('sitesure_auth_token');
-  localStorage.removeItem('sitesure_cached_user');
+  localStorage.removeItem('PRAMAAN_auth_token');
+  localStorage.removeItem('PRAMAAN_cached_user');
 };
 
 export const MOCK_USERS = {
-  'supervisor@sitesure.ai': {
+  'supervisor@PRAMAAN.ai': {
     id: 'USR-SUP-01',
     full_name: 'Rajesh Varma',
-    email: 'supervisor@sitesure.ai',
+    email: 'supervisor@PRAMAAN.ai',
     role: 'SITE_SUPERVISOR',
     employee_id: 'EMP-SUP-01',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
   },
-  'store@sitesure.ai': {
+  'store@PRAMAAN.ai': {
     id: 'USR-STR-01',
     full_name: 'Suresh Mehta',
-    email: 'store@sitesure.ai',
+    email: 'store@PRAMAAN.ai',
     role: 'STORE_INCHARGE',
     employee_id: 'EMP-STR-09',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101']
   },
-  'auditor@sitesure.ai': {
+  'auditor@PRAMAAN.ai': {
     id: 'USR-AUD-01',
     full_name: 'Pooja Iyer, PE',
-    email: 'auditor@sitesure.ai',
+    email: 'auditor@PRAMAAN.ai',
     role: 'AUDIT_MANAGER',
     employee_id: 'EMP-AUD-02',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103']
   },
-  'admin@sitesure.ai': {
+  'omsuryawanshi006@gmail.com': {
     id: 'USR-ADM-01',
-    full_name: 'Vikramaditya Rao',
-    email: 'admin@sitesure.ai',
+    full_name: 'Om Suryawanshi',
+    email: 'omsuryawanshi006@gmail.com',
     role: 'ADMIN',
     employee_id: 'EMP-ADM-00',
     must_change_password: false,
@@ -109,11 +109,26 @@ export const checkBackendHealth = async () => {
   const baseUrl = getApiBaseUrl();
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`${baseUrl}/health`, {
-      method: 'GET',
-      signal: controller.signal
-    });
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+    let res;
+    try {
+      res = await fetch(`${baseUrl}/health`, {
+        method: 'GET',
+        signal: controller.signal
+      });
+    } catch (directErr) {
+      // If direct fetch to baseUrl fails (e.g. host mismatch), try relative path via Vite proxy
+      if (baseUrl !== '' && baseUrl !== window.location.origin) {
+        res = await fetch('/health', {
+          method: 'GET',
+          signal: controller.signal
+        });
+      } else {
+        throw directErr;
+      }
+    }
+
     clearTimeout(timeoutId);
     if (res.ok) {
       const data = await res.json();
@@ -139,14 +154,28 @@ export const authLogin = async (email, password) => {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-    const res = await fetch(`${baseUrl}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, password }),
-      signal: controller.signal
-    });
+    let res;
+    try {
+      res = await fetch(`${baseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password }),
+        signal: controller.signal
+      });
+    } catch (networkErr) {
+      if (baseUrl !== '' && baseUrl !== window.location.origin) {
+        res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password }),
+          signal: controller.signal
+        });
+      } else {
+        throw networkErr;
+      }
+    }
     clearTimeout(timeoutId);
 
     const data = await res.json();
@@ -155,7 +184,7 @@ export const authLogin = async (email, password) => {
         setAuthToken(data.token);
       }
       if (data.user) {
-        localStorage.setItem('buildverify_cached_user', JSON.stringify(data.user));
+        localStorage.setItem('PRAMAAN_cached_user', JSON.stringify(data.user));
       }
       return { success: true, data };
     } else if (res.status === 401 || res.status === 403) {
@@ -169,7 +198,7 @@ export const authLogin = async (email, password) => {
   const mockUser = getOrCreateMockUser(cleanEmail);
   const demoToken = `demo_jwt_token_${Date.now()}`;
   setAuthToken(demoToken);
-  localStorage.setItem('buildverify_cached_user', JSON.stringify(mockUser));
+  localStorage.setItem('PRAMAAN_cached_user', JSON.stringify(mockUser));
 
   return {
     success: true,
@@ -204,19 +233,32 @@ export const authGetMe = async () => {
   const baseUrl = getApiBaseUrl();
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
 
-    const res = await fetch(`${baseUrl}/api/auth/me`, {
-      method: 'GET',
-      headers: getAuthHeaders(true),
-      signal: controller.signal
-    });
+    let res;
+    try {
+      res = await fetch(`${baseUrl}/api/auth/me`, {
+        method: 'GET',
+        headers: getAuthHeaders(true),
+        signal: controller.signal
+      });
+    } catch (netErr) {
+      if (baseUrl !== '' && baseUrl !== window.location.origin) {
+        res = await fetch('/api/auth/me', {
+          method: 'GET',
+          headers: getAuthHeaders(true),
+          signal: controller.signal
+        });
+      } else {
+        throw netErr;
+      }
+    }
     clearTimeout(timeoutId);
 
     if (res.ok) {
       const data = await res.json();
       if (data.user) {
-        localStorage.setItem('buildverify_cached_user', JSON.stringify(data.user));
+        localStorage.setItem('PRAMAAN_cached_user', JSON.stringify(data.user));
       }
       return { success: true, user: data.user };
     }
@@ -224,17 +266,15 @@ export const authGetMe = async () => {
     // network error fallback
   }
 
-  const cachedUserJson = localStorage.getItem('buildverify_cached_user');
+  const cachedUserJson = localStorage.getItem('PRAMAAN_cached_user');
   if (cachedUserJson) {
     try {
       const cachedUser = JSON.parse(cachedUserJson);
       return { success: true, user: cachedUser };
-    } catch (e) {}
+    } catch (e) { }
   }
 
-  const defaultUser = MOCK_USERS['supervisor@buildverify.ai'];
-  localStorage.setItem('buildverify_cached_user', JSON.stringify(defaultUser));
-  return { success: true, user: defaultUser };
+  return { success: false, error: 'User session not found' };
 };
 
 export const authChangePassword = async (oldPassword, newPassword) => {
@@ -507,6 +547,29 @@ export const getAudits = async () => {
       headers: getAuthHeaders(true)
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return { success: true, data, source: 'backend' };
+  } catch (err) {
+    return {
+      success: false,
+      source: 'backend_failed',
+      error: err.message
+    };
+  }
+};
+
+export const createAudit = async (auditPayload) => {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/audits`, {
+      method: 'POST',
+      headers: getAuthHeaders(true),
+      body: JSON.stringify(auditPayload)
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${res.status}`);
+    }
     const data = await res.json();
     return { success: true, data, source: 'backend' };
   } catch (err) {
