@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import {
   Lock,
   Mail,
@@ -11,11 +12,74 @@ import {
   KeyRound,
   Info,
   Building2
+=======
+import { 
+  Lock, 
+  Mail, 
+  Eye, 
+  EyeOff, 
+  ShieldCheck, 
+  CheckCircle2, 
+  AlertCircle, 
+  UserCheck, 
+  HardHat, 
+  Layers, 
+  ArrowRight,
+  Sparkles,
+  KeyRound,
+  Info,
+  Building2,
+  Package
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 
+<<<<<<< HEAD
 export default function Login({ onBackToLanding }) {
+=======
+// 4 Master Roles matching specifications
+const DEMO_ROLE_PRESETS = [
+  {
+    role: 'SITE_SUPERVISOR',
+    title: 'Site Supervisor',
+    email: 'supervisor@sitesure.ai',
+    password: 'Supervisor@2026!',
+    badge: 'Live Site Capture',
+    desc: 'Captures location-stamped site photos, submits milestone claims, and tracks evidence requests.',
+    icon: HardHat
+  },
+  {
+    role: 'STORE_INCHARGE',
+    title: 'Store In-Charge',
+    email: 'store@sitesure.ai',
+    password: 'Store@2026!',
+    badge: 'Material Audit & OCR',
+    desc: 'Registers delivery challans, uploads OCR tickets, records opening and closing physical stock.',
+    icon: Package
+  },
+  {
+    role: 'AUDIT_MANAGER',
+    title: 'Audit Manager',
+    email: 'auditor@sitesure.ai',
+    password: 'Auditor@2026!',
+    badge: 'Clearance & Gate Check',
+    desc: 'Reviews AI vision findings, audits inventory variance, and signs milestone clearance certificates.',
+    icon: UserCheck
+  },
+  {
+    role: 'ADMIN',
+    title: 'System Admin',
+    email: 'admin@sitesure.ai',
+    password: 'Admin@2026!',
+    badge: 'Governance & Audit Log',
+    desc: 'Manages user accounts, assigns RBAC roles, configures site boundaries, and inspects audit logs.',
+    icon: ShieldCheck
+  }
+];
+
+export default function Login() {
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   const { login, changePassword, authError } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -36,6 +100,15 @@ export default function Login({ onBackToLanding }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changePassError, setChangePassError] = useState('');
 
+<<<<<<< HEAD
+=======
+  const handleSelectPreset = (preset) => {
+    setEmail(preset.email);
+    setPassword(preset.password);
+    setErrorMessage('');
+  };
+
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !password) {
@@ -84,6 +157,7 @@ export default function Login({ onBackToLanding }) {
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans text-[#29231D] relative overflow-hidden">
+<<<<<<< HEAD
       {/* Back to Public Landing Page Link */}
       {onBackToLanding && (
         <div className="w-full max-w-4xl flex items-center justify-between mb-4 z-20">
@@ -97,6 +171,8 @@ export default function Login({ onBackToLanding }) {
         </div>
       )}
 
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
       <div className="w-full max-w-4xl relative z-10 space-y-8 my-auto">
         {/* Brand Header */}
         <div className="text-center space-y-3">
@@ -106,7 +182,11 @@ export default function Login({ onBackToLanding }) {
             </div>
             <div className="text-left">
               <div className="flex items-center gap-1.5">
+<<<<<<< HEAD
                 <span className="font-extrabold text-2xl tracking-tight text-[#29231D] font-['Outfit']">PRAMAAN</span>
+=======
+                <span className="font-extrabold text-2xl tracking-tight text-[#29231D] font-['Outfit']">SITESURE</span>
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                 <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#D6B238] text-[#29231D]">AI</span>
               </div>
               <p className="text-[11px] text-[#6F7889] font-semibold tracking-tight mt-0.5">
@@ -122,6 +202,64 @@ export default function Login({ onBackToLanding }) {
           </p>
         </div>
 
+<<<<<<< HEAD
+=======
+        {/* 4 Role Cards / Quick Credential Selectors */}
+        <div>
+          <div className="flex items-center justify-between mb-3 px-1">
+            <span className="text-xs font-bold text-[#6F7889] uppercase tracking-wider flex items-center gap-1.5 font-['Outfit']">
+              <Sparkles className="w-3.5 h-3.5 text-[#D6B238]" />
+              <span>Select Role Account to Evaluate</span>
+            </span>
+            <span className="text-[11px] text-[#6F7889] hidden sm:inline">
+              FastAPI backend cryptographically validates permissions
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {DEMO_ROLE_PRESETS.map((p) => {
+              const Icon = p.icon;
+              const isSelected = email === p.email;
+              return (
+                <div
+                  key={p.role}
+                  onClick={() => handleSelectPreset(p)}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between porcelain-card ${
+                    isSelected 
+                      ? 'border-[#D6B238] ring-2 ring-[#D6B238]/40 -translate-y-1' 
+                      : 'hover:border-[#D6B238]/50'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="p-2 rounded-xl bg-[#D6B238]/20 text-[#29231D]">
+                        <Icon className="w-4.5 h-4.5" />
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EDE5D6] text-[#29231D] border border-[#E4D8BE]">
+                        {p.badge}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xs font-bold text-[#29231D] font-['Outfit']">{p.title}</h3>
+                    <p className="text-[10px] text-[#6F7889] font-semibold">{p.role}</p>
+                    <p className="text-[11px] text-[#6F7889] mt-2 line-clamp-2 leading-relaxed">
+                      {p.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-[#E4D8BE] flex items-center justify-between text-[11px]">
+                    <span className="text-[#6F7889] font-mono truncate max-w-[120px]">{p.email}</span>
+                    <span className={`font-bold text-xs flex items-center gap-0.5 ${isSelected ? 'text-[#8f7215]' : 'text-[#6F7889]'}`}>
+                      Select <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
         {/* Login Form Card */}
         <div className="porcelain-card p-6 sm:p-8 max-w-lg mx-auto shadow-md">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -144,7 +282,11 @@ export default function Login({ onBackToLanding }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+<<<<<<< HEAD
                   placeholder="name@PRAMAAN.ai"
+=======
+                  placeholder="name@sitesure.ai"
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                   required
                   className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] transition"
                 />
@@ -221,7 +363,11 @@ export default function Login({ onBackToLanding }) {
                 </>
               ) : (
                 <>
+<<<<<<< HEAD
                   <span>Sign In to PRAMAAN AI</span>
+=======
+                  <span>Sign In to SiteSure AI</span>
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
@@ -262,7 +408,11 @@ export default function Login({ onBackToLanding }) {
               type="email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
+<<<<<<< HEAD
               placeholder="e.g. supervisor@PRAMAAN.ai"
+=======
+              placeholder="e.g. supervisor@sitesure.ai"
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
               required
               className="w-full px-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
             />
@@ -289,7 +439,11 @@ export default function Login({ onBackToLanding }) {
       {/* First-time Change Password Mandatory Modal */}
       <Modal
         isOpen={isChangePassModalOpen}
+<<<<<<< HEAD
         onClose={() => { }}
+=======
+        onClose={() => {}}
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
         title="First-Time Login: Set Your New Password"
         maxWidth="max-w-md"
       >

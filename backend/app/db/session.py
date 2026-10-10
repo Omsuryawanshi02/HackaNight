@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import AsyncGenerator
+from urllib.parse import urlsplit
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
@@ -19,11 +20,17 @@ def _normalize_database_url(url: str) -> str:
     return url
 
 
+def _is_supabase_pooler_url(url: str) -> bool:
+    """Return True when the URL host is a Supabase pooler domain."""
+    hostname = (urlsplit(url).hostname or "").lower()
+    return hostname == "pooler.supabase.com" or hostname.endswith(".pooler.supabase.com")
+
+
 def init_db(database_url: str) -> None:
     """Initialize the database engine and session factory."""
     norm_url = _normalize_database_url(database_url)
     connect_args = {}
-    if "pooler.supabase.com" in norm_url:
+    if _is_supabase_pooler_url(norm_url):
         connect_args = {"statement_cache_size": 0}
     engine = create_async_engine(norm_url, echo=False, future=True, connect_args=connect_args)
     set_engine(engine)

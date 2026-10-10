@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import {
   Menu,
   Bell,
   Building2,
   Check,
   ChevronDown,
+=======
+import { 
+  Menu, 
+  Bell, 
+  Building2, 
+  Check, 
+  ChevronDown, 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   Plus,
   Search,
   Calendar,
   Download,
+<<<<<<< HEAD
   ShieldCheck,
   User,
   LogOut
@@ -80,6 +90,26 @@ export default function Header({
     onDateRangeChange?.({ startDate, endDate, label: formatDateRangeLabel(startDate, endDate) });
   };
 
+=======
+  ShieldCheck
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+export default function Header({ 
+  onToggleSidebar, 
+  projects = [], 
+  selectedProjectId, 
+  onSelectProject,
+  backendConnected,
+  onOpenQuickAudit
+}) {
+  const { user } = useAuth();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProjectMenu, setShowProjectMenu] = useState(false);
+
+  const currentProject = projects.find(p => p.id === selectedProjectId) || projects[0];
+
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   const notifications = [
     { id: 1, title: 'Discrepancy Flagged', message: 'Tower B Cement consumption variance is +15.8%', time: '10m ago', unread: true },
     { id: 2, title: 'New Photo Submitted', message: 'Pier 48 North Column Stem de-shuttering photo ready for audit', time: '1h ago', unread: true },
@@ -103,7 +133,11 @@ export default function Header({
         {/* Global Search Input */}
         <div className="relative flex-1 hidden sm:block">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6F7889]" />
+<<<<<<< HEAD
           <input
+=======
+          <input 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
             type="text"
             placeholder="Search projects, sites, materials..."
             className="w-full bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl pl-10 pr-4 py-2 text-xs font-medium text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] focus:ring-1 focus:ring-[#D6B238] transition shadow-xs"
@@ -113,6 +147,7 @@ export default function Header({
 
       {/* Right: Date Picker, Export Report, Notifications, User Selector */}
       <div className="flex items-center gap-3">
+<<<<<<< HEAD
         {/* Interactive Calendar Date Range Selector */}
         <div className="relative">
           <button
@@ -216,10 +251,17 @@ export default function Header({
               </div>
             </>
           )}
+=======
+        {/* Date Filter Badge */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FFFDF8] border border-[#E4D8BE] text-xs font-semibold text-[#29231D] shadow-xs">
+          <Calendar className="w-4 h-4 text-[#D6B238]" />
+          <span>Oct 09, 2026 - Nov 09, 2026</span>
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
         </div>
 
         {/* Export Report Action (Champagne Gold button) */}
         <button
+<<<<<<< HEAD
           onClick={() => {
             generateAuditPdfDossier({
               id: `REP-2026-${Math.floor(100 + Math.random() * 900)}`,
@@ -243,6 +285,9 @@ export default function Header({
               }
             });
           }}
+=======
+          onClick={() => alert("Generating full project audit PDF report dossier...")}
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
           className="btn-gold text-xs shadow-sm cursor-pointer"
         >
           <Download className="w-4 h-4 stroke-[2.5]" />
@@ -271,8 +316,13 @@ export default function Header({
 
           {showProjectMenu && (
             <>
+<<<<<<< HEAD
               <div
                 className="fixed inset-0 z-30"
+=======
+              <div 
+                className="fixed inset-0 z-30" 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                 onClick={() => setShowProjectMenu(false)}
               />
               <div className="absolute right-0 top-full mt-2 w-72 bg-[#FFFDF8] rounded-xl shadow-xl border border-[#E4D8BE] py-2 z-40">
@@ -315,8 +365,13 @@ export default function Header({
 
           {showNotifications && (
             <>
+<<<<<<< HEAD
               <div
                 className="fixed inset-0 z-30"
+=======
+              <div 
+                className="fixed inset-0 z-30" 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                 onClick={() => setShowNotifications(false)}
               />
               <div className="absolute right-0 top-full mt-2 w-80 bg-[#FFFDF8] rounded-xl shadow-xl border border-[#E4D8BE] py-2 z-40">
@@ -340,6 +395,7 @@ export default function Header({
           )}
         </div>
 
+<<<<<<< HEAD
         {/* User Profile Avatar with Dropdown */}
         <div className="relative border-l border-[#E4D8BE] pl-2">
           <button
@@ -396,6 +452,21 @@ export default function Header({
               </div>
             </>
           )}
+=======
+        {/* User Avatar */}
+        <div className="flex items-center gap-2.5 pl-2 border-l border-[#E4D8BE]">
+          <div className="w-9 h-9 rounded-full bg-[#29231D] text-[#D6B238] flex items-center justify-center font-bold text-xs shadow-xs border border-[#D6B238]/50">
+            {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'A'}
+          </div>
+          <div className="hidden lg:block text-left">
+            <p className="text-xs font-bold text-[#29231D] leading-none">
+              {user?.full_name || 'Project Auditor'}
+            </p>
+            <span className="text-[10px] text-[#6F7889] font-semibold inline-block mt-0.5">
+              Riverside Tower Project
+            </span>
+          </div>
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
         </div>
       </div>
     </header>

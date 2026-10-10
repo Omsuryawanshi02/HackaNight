@@ -23,6 +23,7 @@ export default function Dashboard({
   materialsData, 
   recentAudits, 
   anomalies, 
+<<<<<<< HEAD
   projects = [],
   selectedProjectId,
   onSelectProject,
@@ -34,6 +35,11 @@ export default function Dashboard({
     : { name: 'Riverside Commercial Tower A', completionPercent: 76 };
 
   const currentProgressPct = currentProject.completionPercent || currentProject.actualProgress || 76;
+=======
+  onNavigate,
+  onSelectAuditForReview
+}) {
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   return (
     <div className="space-y-6">
       {/* KPI Cards Row (matching reference image) */}
@@ -115,6 +121,7 @@ export default function Dashboard({
 
       {/* Middle Grid: Project Progress & Evidence Verification (matching reference screenshot) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<<<<<<< HEAD
         {/* Left Column: Project Progress (Dynamic & Functional) */}
         <div className="lg:col-span-5 porcelain-card p-6 flex flex-col justify-between">
           <div>
@@ -185,11 +192,116 @@ export default function Dashboard({
                   </div>
                 </div>
               ))}
+=======
+        {/* Left Column: Project Progress (5 cols) */}
+        <div className="lg:col-span-5 porcelain-card p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4D8BE]">
+              <h2 className="text-base font-bold text-[#29231D] font-['Outfit']">Project Progress</h2>
+              <span className="text-xs font-bold text-[#727C3E] bg-[#727C3E]/15 px-2.5 py-1 rounded-full border border-[#727C3E]/30">
+                76% Overall Progress
+              </span>
+            </div>
+
+            <div className="mt-4 w-full bg-[#EDE5D6] h-2.5 rounded-full overflow-hidden">
+              <div className="bg-[#727C3E] h-full rounded-full w-[76%] transition-all"></div>
+            </div>
+
+            {/* Milestone List */}
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-4 h-4 text-[#29231D]" />
+                  <div>
+                    <p className="text-xs font-bold text-[#29231D]">Foundation</p>
+                    <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
+                      <Check className="w-3 h-3" /> Verified
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#727C3E] h-full w-[100%]"></div>
+                    </div>
+                    <span className="text-xs font-extrabold text-[#29231D]">100%</span>
+                  </div>
+                  <p className="text-[10px] text-[#6F7889] mt-1">12 Aug 2026</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-4 h-4 text-[#29231D]" />
+                  <div>
+                    <p className="text-xs font-bold text-[#29231D]">Structure</p>
+                    <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                      In Progress
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#D6B238] h-full w-[82%]"></div>
+                    </div>
+                    <span className="text-xs font-extrabold text-[#29231D]">82%</span>
+                  </div>
+                  <p className="text-[10px] text-[#6F7889] mt-1">30 Oct 2026</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-4 h-4 text-[#29231D]" />
+                  <div>
+                    <p className="text-xs font-bold text-[#29231D]">Electrical</p>
+                    <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                      In Progress
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#D6B238] h-full w-[48%]"></div>
+                    </div>
+                    <span className="text-xs font-extrabold text-[#29231D]">48%</span>
+                  </div>
+                  <p className="text-[10px] text-[#6F7889] mt-1">20 Dec 2026</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-4 h-4 text-[#29231D]" />
+                  <div>
+                    <p className="text-xs font-bold text-[#29231D]">Finishing</p>
+                    <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                      Pending
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#D6B238] h-full w-[18%]"></div>
+                    </div>
+                    <span className="text-xs font-extrabold text-[#29231D]">18%</span>
+                  </div>
+                  <p className="text-[10px] text-[#6F7889] mt-1">28 Feb 2027</p>
+                </div>
+              </div>
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
             </div>
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Right Column: Evidence Verification */}
+=======
+        {/* Right Column: Evidence Verification (7 cols matching reference image cards) */}
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
         <div className="lg:col-span-7 porcelain-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E4D8BE]">
@@ -205,6 +317,7 @@ export default function Dashboard({
             {/* 3 Evidence Cards Side-by-Side */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
               {/* Card 1 */}
+<<<<<<< HEAD
               <div 
                 onClick={() => onNavigate('photo-audit')}
                 className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
@@ -218,6 +331,14 @@ export default function Dashboard({
                       e.target.onerror = null;
                       e.target.src = 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80';
                     }}
+=======
+              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
+                <div className="h-32 bg-slate-200 relative overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=600&q=80" 
+                    alt="Foundation Zone A" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>
@@ -240,19 +361,26 @@ export default function Dashboard({
               </div>
 
               {/* Card 2 */}
+<<<<<<< HEAD
               <div 
                 onClick={() => onNavigate('photo-audit')}
                 className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
               >
+=======
+              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                 <div className="h-32 bg-slate-200 relative overflow-hidden">
                   <img 
                     src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" 
                     alt="Structure Level 3" 
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+<<<<<<< HEAD
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80';
                     }}
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>
@@ -275,19 +403,26 @@ export default function Dashboard({
               </div>
 
               {/* Card 3 */}
+<<<<<<< HEAD
               <div 
                 onClick={() => onNavigate('photo-audit')}
                 className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
               >
+=======
+              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                 <div className="h-32 bg-slate-200 relative overflow-hidden">
                   <img 
                     src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" 
                     alt="Electrical Block 8" 
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+<<<<<<< HEAD
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80';
                     }}
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>

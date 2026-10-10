@@ -5,7 +5,10 @@ import Header from './components/Header';
 import Toast from './components/Toast';
 
 // Pages
+<<<<<<< HEAD
 import LandingPage from './pages/LandingPage';
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -17,8 +20,11 @@ import InventoryAnomalies from './pages/InventoryAnomalies';
 import AuditorReview from './pages/AuditorReview';
 import AuditReports from './pages/AuditReports';
 import Settings from './pages/Settings';
+<<<<<<< HEAD
 import Profile from './pages/Profile';
 import Projects from './pages/Projects';
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
 
 // Initial Sample Data
 import { 
@@ -45,9 +51,15 @@ const DEFAULT_TAB_FOR_ROLE = {
 };
 
 const ALL_ACCESSIBLE_TABS = [
+<<<<<<< HEAD
   'landing', 'admin-dashboard', 'dashboard', 'projects', 'user-management', 'activity-logs',
   'photo-audit', 'material-audit', 'inventory-anomalies',
   'auditor-review', 'audit-reports', 'settings', 'profile'
+=======
+  'admin-dashboard', 'dashboard', 'user-management', 'activity-logs',
+  'photo-audit', 'material-audit', 'inventory-anomalies',
+  'auditor-review', 'audit-reports', 'settings'
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
 ];
 
 // Role → allowed tabs (All dashboards and audit features accessible to all authenticated roles)
@@ -64,7 +76,10 @@ export default function App() {
   const { user, role, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const [currentTab, setCurrentTab] = useState('dashboard');
+<<<<<<< HEAD
   const [unauthView, setUnauthView] = useState('landing');
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [backendConnected, setBackendConnected] = useState(false);
 
@@ -118,6 +133,10 @@ export default function App() {
   // Navigation & tab access with alias handling
   const handleSetTab = useCallback((targetTab) => {
     const ALIASES = {
+<<<<<<< HEAD
+=======
+      'projects': 'settings',
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
       'all-audits': 'auditor-review'
     };
     const tab = ALIASES[targetTab] || targetTab;
@@ -243,6 +262,7 @@ export default function App() {
     );
   }
 
+<<<<<<< HEAD
   // ─── Unauthenticated Screens (Public Landing & Login) ──────────────
   if (!isAuthenticated) {
     if (unauthView === 'login') {
@@ -261,6 +281,14 @@ export default function App() {
           onNavigateToLogin={() => setUnauthView('login')}
           onNavigateToApp={() => setUnauthView('login')}
         />
+=======
+  // ─── Login Screen ──────────────────────────────────────────────────
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Toast toasts={toasts} onDismiss={dismissToast} />
+        <Login />
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
       </>
     );
   }
@@ -293,11 +321,15 @@ export default function App() {
           onSelectProject={setSelectedProjectId}
           backendConnected={backendConnected}
           onOpenQuickAudit={() => handleSetTab('photo-audit')}
+<<<<<<< HEAD
           onOpenProfile={() => handleSetTab('profile')}
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
         />
 
         {/* Page Content Viewport */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+<<<<<<< HEAD
           {/* ── Public Landing Overview (Authenticated View) ── */}
           {currentTab === 'landing' && (
             <div className="-m-4 sm:-m-6 lg:-m-8">
@@ -329,6 +361,8 @@ export default function App() {
             />
           )}
 
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
           {/* ── Admin Pages ── */}
           {currentTab === 'admin-dashboard' && (
             <AdminDashboard
@@ -362,9 +396,12 @@ export default function App() {
               materialsData={materialsData}
               recentAudits={auditReviews}
               anomalies={anomalies}
+<<<<<<< HEAD
               projects={projects}
               selectedProjectId={selectedProjectId}
               onSelectProject={setSelectedProjectId}
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
               onNavigate={handleSetTab}
               onSelectAuditForReview={handleSelectAuditForReview}
             />

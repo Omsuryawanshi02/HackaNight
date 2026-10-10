@@ -12,7 +12,10 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "framer-motion": "^14.0.0",
+<<<<<<< HEAD
     "jspdf": "^4.2.1",
+=======
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
     "lucide-react": "^1.54.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

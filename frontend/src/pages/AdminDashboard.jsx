@@ -1,4 +1,5 @@
 import React from 'react';
+<<<<<<< HEAD
 import {
   Users,
   Building2,
@@ -9,6 +10,18 @@ import {
   ArrowRight,
   Clock,
   CheckCircle2,
+=======
+import { 
+  Users, 
+  Building2, 
+  ShieldCheck, 
+  FileText, 
+  AlertTriangle, 
+  UserPlus, 
+  ArrowRight, 
+  Clock, 
+  CheckCircle2, 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
   HardHat,
   Layers,
   UserCheck
@@ -16,11 +29,19 @@ import {
 import StatCard from '../components/StatCard';
 import StatusBadge from '../components/StatusBadge';
 
+<<<<<<< HEAD
 export default function AdminDashboard({
   stats,
   recentAudits,
   anomalies,
   onNavigate
+=======
+export default function AdminDashboard({ 
+  stats, 
+  recentAudits, 
+  anomalies, 
+  onNavigate 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
 }) {
   const pendingCount = recentAudits.filter(a => a.status === 'Pending Review').length;
 
@@ -103,7 +124,11 @@ export default function AdminDashboard({
 
       {/* Role Breakdown Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<<<<<<< HEAD
         <div
+=======
+        <div 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
           onClick={() => onNavigate('user-management')}
           className="porcelain-card p-5 cursor-pointer hover:border-[#D6B238] transition flex items-center justify-between"
         >
@@ -119,7 +144,11 @@ export default function AdminDashboard({
           <ArrowRight className="w-4 h-4 text-[#6F7889]" />
         </div>
 
+<<<<<<< HEAD
         <div
+=======
+        <div 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
           onClick={() => onNavigate('user-management')}
           className="porcelain-card p-5 cursor-pointer hover:border-[#D6B238] transition flex items-center justify-between"
         >
@@ -135,7 +164,11 @@ export default function AdminDashboard({
           <ArrowRight className="w-4 h-4 text-[#6F7889]" />
         </div>
 
+<<<<<<< HEAD
         <div
+=======
+        <div 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
           onClick={() => onNavigate('user-management')}
           className="porcelain-card p-5 cursor-pointer hover:border-[#727C3E] transition flex items-center justify-between"
         >
@@ -217,8 +250,13 @@ export default function AdminDashboard({
 
           <div className="space-y-3">
             {anomalies.slice(0, 3).map((anom) => (
+<<<<<<< HEAD
               <div
                 key={anom.id}
+=======
+              <div 
+                key={anom.id} 
+>>>>>>> 9ed836eb567ac6cf8987eb3b63d40b7ce78ad82a
                 onClick={() => onNavigate('inventory-anomalies')}
                 className="p-3.5 rounded-xl border border-[#E4D8BE] bg-[#EDE5D6]/30 hover:bg-[#EDE5D6]/60 transition cursor-pointer"
               >
