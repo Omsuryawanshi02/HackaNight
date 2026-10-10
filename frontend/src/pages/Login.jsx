@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  Lock, 
-  Mail, 
-  Eye, 
-  EyeOff, 
-  ShieldCheck, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
   ArrowRight,
   KeyRound,
   Info,
@@ -106,7 +106,7 @@ export default function Login({ onBackToLanding }) {
             </div>
             <div className="text-left">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-2xl tracking-tight text-[#29231D] font-['Outfit']">SITESURE</span>
+                <span className="font-extrabold text-2xl tracking-tight text-[#29231D] font-['Outfit']">PRAMAAN</span>
                 <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#D6B238] text-[#29231D]">AI</span>
               </div>
               <p className="text-[11px] text-[#6F7889] font-semibold tracking-tight mt-0.5">
@@ -144,7 +144,7 @@ export default function Login({ onBackToLanding }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@sitesure.ai"
+                  placeholder="name@PRAMAAN.ai"
                   required
                   className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] placeholder-[#6F7889] focus:outline-none focus:border-[#D6B238] transition"
                 />
@@ -221,7 +221,7 @@ export default function Login({ onBackToLanding }) {
                 </>
               ) : (
                 <>
-                  <span>Sign In to SiteSure AI</span>
+                  <span>Sign In to PRAMAAN AI</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
@@ -262,7 +262,7 @@ export default function Login({ onBackToLanding }) {
               type="email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
-              placeholder="e.g. supervisor@sitesure.ai"
+              placeholder="e.g. supervisor@PRAMAAN.ai"
               required
               className="w-full px-3.5 py-2.5 text-xs bg-[#FFFDF8] border border-[#E4D8BE] rounded-xl text-[#29231D] focus:outline-none focus:border-[#D6B238]"
             />
@@ -289,7 +289,7 @@ export default function Login({ onBackToLanding }) {
       {/* First-time Change Password Mandatory Modal */}
       <Modal
         isOpen={isChangePassModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         title="First-Time Login: Set Your New Password"
         maxWidth="max-w-md"
       >

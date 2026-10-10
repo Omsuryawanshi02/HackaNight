@@ -23,9 +23,17 @@ export default function Dashboard({
   materialsData, 
   recentAudits, 
   anomalies, 
+  projects = [],
+  selectedProjectId,
+  onSelectProject,
   onNavigate,
   onSelectAuditForReview
 }) {
+  const currentProject = (projects && projects.length > 0)
+    ? (projects.find(p => p.id === selectedProjectId) || projects[0])
+    : { name: 'Riverside Commercial Tower A', completionPercent: 76 };
+
+  const currentProgressPct = currentProject.completionPercent || currentProject.actualProgress || 76;
   return (
     <div className="space-y-6">
       {/* KPI Cards Row (matching reference image) */}
@@ -107,110 +115,81 @@ export default function Dashboard({
 
       {/* Middle Grid: Project Progress & Evidence Verification (matching reference screenshot) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Project Progress (5 cols) */}
+        {/* Left Column: Project Progress (Dynamic & Functional) */}
         <div className="lg:col-span-5 porcelain-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E4D8BE]">
-              <h2 className="text-base font-bold text-[#29231D] font-['Outfit']">Project Progress</h2>
-              <span className="text-xs font-bold text-[#727C3E] bg-[#727C3E]/15 px-2.5 py-1 rounded-full border border-[#727C3E]/30">
-                76% Overall Progress
-              </span>
+              <div>
+                <h2 className="text-base font-bold text-[#29231D] font-['Outfit']">Project Progress</h2>
+                <p className="text-[10px] text-[#6F7889] font-medium truncate max-w-[200px]">{currentProject.name || 'Site Progress'}</p>
+              </div>
+              <button 
+                onClick={() => onNavigate('projects')}
+                className="text-xs font-bold text-[#727C3E] bg-[#727C3E]/15 hover:bg-[#727C3E]/25 px-2.5 py-1 rounded-full border border-[#727C3E]/30 transition cursor-pointer"
+                title="View full project details & milestones"
+              >
+                {currentProgressPct}% Overall Progress
+              </button>
             </div>
 
             <div className="mt-4 w-full bg-[#EDE5D6] h-2.5 rounded-full overflow-hidden">
-              <div className="bg-[#727C3E] h-full rounded-full w-[76%] transition-all"></div>
+              <div className="bg-[#727C3E] h-full rounded-full transition-all duration-500" style={{ width: `${currentProgressPct}%` }}></div>
             </div>
 
-            {/* Milestone List */}
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Foundation</p>
-                    <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
-                      <Check className="w-3 h-3" /> Verified
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#727C3E] h-full w-[100%]"></div>
+            {/* Dynamic Milestone List */}
+            <div className="mt-6 space-y-3.5">
+              {[
+                { name: 'Foundation', status: 'Verified', percent: 100, date: '12 Aug 2026' },
+                { name: 'Structure', status: currentProgressPct >= 80 ? 'In Progress' : 'In Progress', percent: Math.min(100, Math.max(40, currentProgressPct)), date: '30 Oct 2026' },
+                { name: 'Electrical', status: 'In Progress', percent: Math.round(currentProgressPct * 0.63), date: '20 Dec 2026' },
+                { name: 'Finishing', status: currentProgressPct > 80 ? 'In Progress' : 'Pending', percent: Math.round(currentProgressPct * 0.24), date: '28 Feb 2027' }
+              ].map((m, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => onNavigate('photo-audit')}
+                  className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE] hover:border-[#D6B238] transition cursor-pointer group shadow-xs"
+                  title={`Click to capture evidence for ${m.name}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[#D6B238]/20 text-[#29231D] flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                      <Building2 className="w-4 h-4 text-[#29231D]" />
                     </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">100%</span>
-                  </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">12 Aug 2026</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Structure</p>
-                    <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                      In Progress
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B238] h-full w-[82%]"></div>
+                    <div>
+                      <p className="text-xs font-bold text-[#29231D] group-hover:text-[#8f7215] transition">{m.name}</p>
+                      {m.status === 'Verified' ? (
+                        <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
+                          <Check className="w-3 h-3" /> Verified
+                        </span>
+                      ) : m.status === 'In Progress' ? (
+                        <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                          In Progress
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                          Pending
+                        </span>
+                      )}
                     </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">82%</span>
                   </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">30 Oct 2026</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Electrical</p>
-                    <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                      In Progress
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B238] h-full w-[48%]"></div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${m.percent === 100 ? 'bg-[#727C3E]' : 'bg-[#D6B238]'}`} 
+                          style={{ width: `${m.percent}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-extrabold text-[#29231D]">{m.percent}%</span>
                     </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">48%</span>
-                  </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">20 Dec 2026</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE]">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-4 h-4 text-[#29231D]" />
-                  <div>
-                    <p className="text-xs font-bold text-[#29231D]">Finishing</p>
-                    <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                      Pending
-                    </span>
+                    <p className="text-[10px] text-[#6F7889] mt-1 font-medium">{m.date}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#D6B238] h-full w-[18%]"></div>
-                    </div>
-                    <span className="text-xs font-extrabold text-[#29231D]">18%</span>
-                  </div>
-                  <p className="text-[10px] text-[#6F7889] mt-1">28 Feb 2027</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Evidence Verification (7 cols matching reference image cards) */}
+        {/* Right Column: Evidence Verification */}
         <div className="lg:col-span-7 porcelain-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E4D8BE]">
@@ -226,12 +205,19 @@ export default function Dashboard({
             {/* 3 Evidence Cards Side-by-Side */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
               {/* Card 1 */}
-              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
+              <div 
+                onClick={() => onNavigate('photo-audit')}
+                className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
+              >
                 <div className="h-32 bg-slate-200 relative overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=600&q=80" 
+                    src="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80" 
                     alt="Foundation Zone A" 
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>
@@ -254,12 +240,19 @@ export default function Dashboard({
               </div>
 
               {/* Card 2 */}
-              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
+              <div 
+                onClick={() => onNavigate('photo-audit')}
+                className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
+              >
                 <div className="h-32 bg-slate-200 relative overflow-hidden">
                   <img 
                     src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80" 
                     alt="Structure Level 3" 
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>
@@ -282,12 +275,19 @@ export default function Dashboard({
               </div>
 
               {/* Card 3 */}
-              <div className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition">
+              <div 
+                onClick={() => onNavigate('photo-audit')}
+                className="rounded-xl border border-[#E4D8BE] bg-[#FFFDF8] overflow-hidden shadow-xs group hover:border-[#D6B238] transition cursor-pointer"
+              >
                 <div className="h-32 bg-slate-200 relative overflow-hidden">
                   <img 
                     src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80" 
                     alt="Electrical Block 8" 
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>

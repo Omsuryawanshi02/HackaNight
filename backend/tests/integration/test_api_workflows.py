@@ -1,4 +1,4 @@
-"""Integration tests for SiteSure AI FastAPI endpoints and audit workflows."""
+"""Integration tests for PRAMAAN AI FastAPI endpoints and audit workflows."""
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app

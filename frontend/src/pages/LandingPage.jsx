@@ -36,52 +36,51 @@ export default function LandingPage({ onNavigateToLogin, onNavigateToApp }) {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id) => {
+  const scrollToSection = React.useCallback((id) => {
     setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
+  }, []);
 
-  const handlePrimaryAction = () => {
+  const handlePrimaryAction = React.useCallback(() => {
     if (isAuthenticated) {
       if (onNavigateToApp) onNavigateToApp();
     } else {
       if (onNavigateToLogin) onNavigateToLogin();
     }
-  };
+  }, [isAuthenticated, onNavigateToApp, onNavigateToLogin]);
 
   return (
     <div className="min-h-screen bg-transparent text-[#29231D] font-sans antialiased selection:bg-[#D6B238]/30 selection:text-[#29231D] relative">
 
       {/* ─── A. Navigation Bar ────────────────────────────────────────── */}
-      <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'glass-header py-3 shadow-md' : 'bg-[#F7F3EA]/90 backdrop-blur-md py-4 border-b border-[#E4D8BE]/60'
-        }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'glass-header py-2 shadow-md' : 'bg-[#F7F3EA]/95 backdrop-blur-md py-2.5 border-b border-[#E4D8BE]/60'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
 
           {/* Left: Brand Logo & Title */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 rounded-xl bg-[#D6B238] flex items-center justify-center text-[#29231D] shadow-sm font-black">
-              <Building2 className="w-6 h-6" />
+          <div className="flex items-center gap-2.5 cursor-pointer group shrink-0" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-9 h-9 rounded-xl bg-[#D6B238] flex items-center justify-center text-[#29231D] shadow-sm font-black group-hover:scale-105 transition">
+              <Building2 className="w-5 h-5 text-[#29231D]" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-xl tracking-tight text-[#29231D] font-['Outfit']">SITESURE</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#D6B238] text-[#29231D]">AI</span>
+                <span className="font-extrabold text-lg tracking-tight text-[#29231D] font-['Outfit'] leading-none">PRAMAAN</span>
+                <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[#D6B238] text-[#29231D]">AI</span>
               </div>
-              <p className="text-[10px] text-[#6F7889] font-semibold tracking-tight leading-none hidden sm:block">
-                Construction Verification & Audit Intelligence
+              <p className="text-[10px] text-[#6F7889] font-bold tracking-tight leading-none hidden sm:block mt-0.5">
+                From Site To Proof
               </p>
             </div>
           </div>
 
-          {/* Center: Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-[#6F7889]">
+          {/* Center: Desktop Navigation Links (Centered) */}
+          <nav className="hidden md:flex items-center gap-8 text-xs font-extrabold text-[#524636] absolute left-1/2 -translate-x-1/2">
             <button
               onClick={() => scrollToSection('home')}
               className="hover:text-[#29231D] transition cursor-pointer"
@@ -106,53 +105,12 @@ export default function LandingPage({ onNavigateToLogin, onNavigateToApp }) {
             >
               Features
             </button>
-            <button
-              onClick={() => scrollToSection('roles')}
-              className="hover:text-[#29231D] transition cursor-pointer"
-            >
-              Roles
-            </button>
-            <button
-              onClick={() => scrollToSection('security')}
-              className="hover:text-[#29231D] transition cursor-pointer"
-            >
-              Security
-            </button>
           </nav>
-
-          {/* Right: Action Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            {isAuthenticated ? (
-              <button
-                onClick={onNavigateToApp}
-                className="btn-gold text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
-              >
-                <span>Go to Workspace ({user?.role || role || 'User'})</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={onNavigateToLogin}
-                  className="btn-secondary-sandstone text-xs font-bold px-4 py-2 rounded-xl text-[#29231D] hover:bg-[#EDE5D6] transition cursor-pointer"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={onNavigateToLogin}
-                  className="btn-gold text-xs font-bold px-4.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
-                >
-                  <span>Get Started</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </>
-            )}
-          </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-[#29231D] hover:bg-[#EDE5D6] transition cursor-pointer"
+            className="md:hidden p-2 rounded-lg text-[#29231D] hover:bg-[#EDE5D6] transition cursor-pointer ml-auto"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -206,9 +164,9 @@ export default function LandingPage({ onNavigateToLogin, onNavigateToApp }) {
         <div className="space-y-6 flex flex-col items-center">
 
           {/* Eyebrow Chip */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EDE5D6] border border-[#E4D8BE] text-[11px] font-extrabold text-[#29231D] uppercase tracking-wider font-['Outfit']">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EDE5D6] border border-[#E4D8BE] text-[11px] font-extrabold text-[#29231D] uppercase tracking-wider font-['Outfit']">
             <Sparkles className="w-3.5 h-3.5 text-[#D6B238]" />
-            <span>AI-Powered Construction Auditing</span>
+            <span>PRAMAAN AI • From Site To Proof</span>
           </div>
 
           {/* Main Headline */}
@@ -219,7 +177,7 @@ export default function LandingPage({ onNavigateToLogin, onNavigateToApp }) {
 
           {/* Supporting Description */}
           <p className="text-sm sm:text-base text-[#6F7889] leading-relaxed font-normal max-w-2xl mx-auto">
-            SiteSure AI helps construction teams verify site progress, review photographic evidence, reconcile material usage, and identify discrepancies before milestone clearance.
+            PRAMAAN AI helps construction teams verify site progress, review photographic evidence, reconcile material usage, and identify discrepancies before milestone clearance.
           </p>
 
           {/* CTAs */}
@@ -589,10 +547,10 @@ export default function LandingPage({ onNavigateToLogin, onNavigateToApp }) {
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-xl tracking-tight text-[#FFFDF8] font-['Outfit']">SITESURE</span>
+                    <span className="font-extrabold text-xl tracking-tight text-[#FFFDF8] font-['Outfit']">PRAMAAN</span>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#D6B238] text-[#29231D]">AI</span>
                   </div>
-                  <p className="text-[10px] text-[#D6B238] font-bold tracking-wider uppercase">Audit Intelligence</p>
+                  <p className="text-[10px] text-[#D6B238] font-bold tracking-wider uppercase">From Site To Proof</p>
                 </div>
               </div>
 
@@ -678,19 +636,11 @@ export default function LandingPage({ onNavigateToLogin, onNavigateToApp }) {
           {/* Bottom Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#EDE5D6]/60">
             <div className="flex items-center gap-3">
-              <p>© 2026 SiteSure AI. All rights reserved.</p>
+              <p>© 2026 PRAMAAN AI. All rights reserved.</p>
               <span className="hidden sm:inline text-[#E4D8BE]/30">•</span>
               <p className="hidden sm:inline">Construction Verification & Material Audit Platform</p>
             </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>System Operational</span>
-              </div>
-            </div>
           </div>
-
         </div>
       </footer>
 

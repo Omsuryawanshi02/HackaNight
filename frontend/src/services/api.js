@@ -1,65 +1,65 @@
-// SiteSure AI - API Service with Authentication & RBAC Support
+// PRAMAAN AI - API Service with Authentication & RBAC Support
 // Connects to FastAPI REST API at http://127.0.0.1:8000
 
 export const DEFAULT_API_BASE_URL = 'http://127.0.0.1:8000';
 
 export const getApiBaseUrl = () => {
-  return localStorage.getItem('sitesure_api_url') || DEFAULT_API_BASE_URL;
+  return localStorage.getItem('PRAMAAN_api_url') || DEFAULT_API_BASE_URL;
 };
 
 export const setApiBaseUrl = (url) => {
-  localStorage.setItem('sitesure_api_url', url);
+  localStorage.setItem('PRAMAAN_api_url', url);
 };
 
 export const getAuthToken = () => {
-  return localStorage.getItem('sitesure_auth_token') || null;
+  return localStorage.getItem('PRAMAAN_auth_token') || null;
 };
 
 export const setAuthToken = (token) => {
   if (token) {
-    localStorage.setItem('sitesure_auth_token', token);
+    localStorage.setItem('PRAMAAN_auth_token', token);
   } else {
-    localStorage.removeItem('sitesure_auth_token');
+    localStorage.removeItem('PRAMAAN_auth_token');
   }
 };
 
 export const clearAuthToken = () => {
-  localStorage.removeItem('sitesure_auth_token');
-  localStorage.removeItem('sitesure_cached_user');
+  localStorage.removeItem('PRAMAAN_auth_token');
+  localStorage.removeItem('PRAMAAN_cached_user');
 };
 
 export const MOCK_USERS = {
-  'supervisor@sitesure.ai': {
+  'supervisor@PRAMAAN.ai': {
     id: 'USR-SUP-01',
     full_name: 'Rajesh Varma',
-    email: 'supervisor@sitesure.ai',
+    email: 'supervisor@PRAMAAN.ai',
     role: 'SITE_SUPERVISOR',
     employee_id: 'EMP-SUP-01',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
   },
-  'store@sitesure.ai': {
+  'store@PRAMAAN.ai': {
     id: 'USR-STR-01',
     full_name: 'Suresh Mehta',
-    email: 'store@sitesure.ai',
+    email: 'store@PRAMAAN.ai',
     role: 'STORE_INCHARGE',
     employee_id: 'EMP-STR-09',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101']
   },
-  'auditor@sitesure.ai': {
+  'auditor@PRAMAAN.ai': {
     id: 'USR-AUD-01',
     full_name: 'Pooja Iyer, PE',
-    email: 'auditor@sitesure.ai',
+    email: 'auditor@PRAMAAN.ai',
     role: 'AUDIT_MANAGER',
     employee_id: 'EMP-AUD-02',
     must_change_password: false,
     assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103']
   },
-  'admin@sitesure.ai': {
+  'admin@PRAMAAN.ai': {
     id: 'USR-ADM-01',
     full_name: 'Vikramaditya Rao',
-    email: 'admin@sitesure.ai',
+    email: 'admin@PRAMAAN.ai',
     role: 'ADMIN',
     employee_id: 'EMP-ADM-00',
     must_change_password: false,
@@ -229,7 +229,7 @@ export const authGetMe = async () => {
     try {
       const cachedUser = JSON.parse(cachedUserJson);
       return { success: true, user: cachedUser };
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const defaultUser = MOCK_USERS['supervisor@buildverify.ai'];

@@ -17,6 +17,8 @@ import InventoryAnomalies from './pages/InventoryAnomalies';
 import AuditorReview from './pages/AuditorReview';
 import AuditReports from './pages/AuditReports';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
+import Projects from './pages/Projects';
 
 // Initial Sample Data
 import { 
@@ -43,9 +45,9 @@ const DEFAULT_TAB_FOR_ROLE = {
 };
 
 const ALL_ACCESSIBLE_TABS = [
-  'landing', 'admin-dashboard', 'dashboard', 'user-management', 'activity-logs',
+  'landing', 'admin-dashboard', 'dashboard', 'projects', 'user-management', 'activity-logs',
   'photo-audit', 'material-audit', 'inventory-anomalies',
-  'auditor-review', 'audit-reports', 'settings'
+  'auditor-review', 'audit-reports', 'settings', 'profile'
 ];
 
 // Role → allowed tabs (All dashboards and audit features accessible to all authenticated roles)
@@ -116,7 +118,6 @@ export default function App() {
   // Navigation & tab access with alias handling
   const handleSetTab = useCallback((targetTab) => {
     const ALIASES = {
-      'projects': 'settings',
       'all-audits': 'auditor-review'
     };
     const tab = ALIASES[targetTab] || targetTab;
@@ -292,6 +293,7 @@ export default function App() {
           onSelectProject={setSelectedProjectId}
           backendConnected={backendConnected}
           onOpenQuickAudit={() => handleSetTab('photo-audit')}
+          onOpenProfile={() => handleSetTab('profile')}
         />
 
         {/* Page Content Viewport */}
@@ -304,6 +306,27 @@ export default function App() {
                 onNavigateToApp={() => handleSetTab('dashboard')}
               />
             </div>
+          )}
+
+          {/* ── Profile Page ── */}
+          {currentTab === 'profile' && (
+            <Profile
+              onShowToast={addToast}
+              projects={projects}
+              backendConnected={backendConnected}
+            />
+          )}
+
+          {/* ── My Projects Page (Site Supervisor) ── */}
+          {currentTab === 'projects' && (
+            <Projects
+              projects={projects}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={setSelectedProjectId}
+              onNavigate={handleSetTab}
+              onShowToast={addToast}
+              backendConnected={backendConnected}
+            />
           )}
 
           {/* ── Admin Pages ── */}
@@ -339,6 +362,9 @@ export default function App() {
               materialsData={materialsData}
               recentAudits={auditReviews}
               anomalies={anomalies}
+              projects={projects}
+              selectedProjectId={selectedProjectId}
+              onSelectProject={setSelectedProjectId}
               onNavigate={handleSetTab}
               onSelectAuditForReview={handleSelectAuditForReview}
             />
