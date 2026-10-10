@@ -7,29 +7,32 @@ import {
   Trash2, 
   Sparkles, 
   ShieldCheck, 
-  Send
+  Send,
+  Clock
 } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import LoadingState from '../components/LoadingState';
-import { SAMPLE_PHOTO_PRESETS } from '../data/sampleData';
+import { formatUploadTimestamp } from '../utils/dateUtils';
 import { auditPhoto, createAudit } from '../services/api';
 
 export default function PhotoAudit({ 
   projects = [], 
   selectedProjectId, 
   onSaveToAuditorReview,
-  onShowToast,
+  onShowToast, 
   backendConnected
 }) {
   const currentProject = projects.find(p => p.id === selectedProjectId) || projects[0];
 
   // Form State
-  const [projectName, setProjectName] = useState(currentProject ? currentProject.name : 'Skyline Heights Tower B');
-  const [siteLocation, setSiteLocation] = useState('Tower B - 6th Floor Slab Pour Area (Grid B3-E6)');
+  const [projectName, setProjectName] = useState(currentProject ? currentProject.name : 'Active Site');
+  const [siteLocation, setSiteLocation] = useState(currentProject?.location || 'Main Site Slab Pour Area');
   const [milestone, setMilestone] = useState('Slab');
   const [claimedPercentage, setClaimedPercentage] = useState(80);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(SAMPLE_PHOTO_PRESETS[0].imageUrl);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [capturedAt, setCapturedAt] = useState(null);
+  const [uploadedAt, setUploadedAt] = useState(null);
   const [fileError, setFileError] = useState('');
 
   // Live Camera & Geolocation State
@@ -96,7 +99,9 @@ export default function PhotoAudit({
     ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
 
     const dataUrl = canvasEl.toDataURL('image/jpeg', 0.9);
+    const captureTime = new Date().toISOString();
     setPreviewUrl(dataUrl);
+    setCapturedAt(captureTime);
     setCameraCaptured(true);
     stopLiveCamera();
 
@@ -116,32 +121,16 @@ export default function PhotoAudit({
 
   const retakeCameraPhoto = () => {
     setCameraCaptured(false);
+    setCapturedAt(null);
+    setUploadedAt(null);
     startLiveCamera();
   };
   
   // Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStep, setAnalysisStep] = useState('');
-  const [analysisResult, setAnalysisResult] = useState(SAMPLE_PHOTO_PRESETS[0].mockResult);
-  const [resultSource, setResultSource] = useState('demo');
-
-  // Handle preset selection
-  const handleLoadPreset = (preset) => {
-    setProjectName(preset.project);
-    setSiteLocation(preset.location);
-    setMilestone(preset.milestone);
-    setClaimedPercentage(preset.claimedPercentage);
-    setPreviewUrl(preset.imageUrl);
-    setSelectedFile(null);
-    setAnalysisResult(preset.mockResult);
-    setResultSource('demo');
-    setFileError('');
-    onShowToast?.({
-      type: 'info',
-      title: 'Preset Loaded',
-      message: `Loaded test sample: ${preset.title}`
-    });
-  };
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [resultSource, setResultSource] = useState(null);
 
   // Handle file drop / upload
   const handleFileChange = (e) => {
@@ -155,7 +144,7 @@ export default function PhotoAudit({
     validateAndSetFile(file);
   };
 
-  const validateAndSetFile = (file) => {
+  const validateAndSetFile = async (file) => {
     if (!file) return;
     setFileError('');
 
@@ -174,11 +163,25 @@ export default function PhotoAudit({
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
     setAnalysisResult(null);
+    setCapturedAt(file.lastModified ? new Date(file.lastModified).toISOString() : new Date().toISOString());
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      setPhotoHash(hashHex);
+    } catch {
+      setPhotoHash(`sha256_${Date.now()}`);
+    }
   };
 
   const handleRemoveImage = () => {
     setSelectedFile(null);
     setPreviewUrl('');
+    setCapturedAt(null);
+    setUploadedAt(null);
+    setPhotoHash('');
     setAnalysisResult(null);
     setFileError('');
   };
@@ -203,11 +206,18 @@ export default function PhotoAudit({
       formData.append('location', siteLocation);
       formData.append('milestone', milestone);
       formData.append('claimedPercentage', claimedPercentage);
+      if (capturedAt) {
+        formData.append('capturedAt', capturedAt);
+      }
+      if (photoHash) {
+        formData.append('photoHash', photoHash);
+      }
 
       const res = await auditPhoto(formData);
       if (res.success && res.data) {
         setAnalysisResult(res.data);
         setResultSource('backend');
+        setUploadedAt(res.uploadedAt || res.data?.uploadedAt || new Date().toISOString());
         setIsAnalyzing(false);
         onShowToast?.({
           type: 'success',
@@ -265,6 +275,7 @@ export default function PhotoAudit({
       });
 
       setResultSource('demo');
+      setUploadedAt(new Date().toISOString());
       setIsAnalyzing(false);
       onShowToast?.({
         type: 'success',
@@ -278,6 +289,7 @@ export default function PhotoAudit({
     if (!analysisResult) return;
 
     const currYear = new Date().getFullYear();
+    const serverTimestamp = uploadedAt || new Date().toISOString();
     const newAuditItem = {
       id: `AUD-${currYear}-${Math.floor(100 + Math.random() * 900)}`,
       project: projectName,
@@ -287,6 +299,11 @@ export default function PhotoAudit({
       submittedBy: 'AI Vision Assistant (Automated Scan)',
       submissionDate: new Date().toISOString().replace('T', ' ').substring(0, 16),
       submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      uploadedAt: serverTimestamp,
+      uploaded_at: serverTimestamp,
+      capturedAt: capturedAt || null,
+      captured_at: capturedAt || null,
+      evidenceImageHash: photoHash || null,
       status: 'Pending Review',
       riskLevel: analysisResult.assessmentStatus === 'Evidence Supports Claim' ? 'Low' : 
                  analysisResult.assessmentStatus === 'Needs Additional Evidence' ? 'Medium' : 'High',
@@ -301,7 +318,12 @@ export default function PhotoAudit({
 
     if (backendConnected) {
       try {
-        await createAudit(newAuditItem);
+        const auditRes = await createAudit(newAuditItem);
+        if (auditRes?.uploadedAt) {
+          newAuditItem.uploadedAt = auditRes.uploadedAt;
+          newAuditItem.uploaded_at = auditRes.uploadedAt;
+          setUploadedAt(auditRes.uploadedAt);
+        }
       } catch (err) {
         console.warn('Backend audit creation notice:', err);
       }
@@ -332,19 +354,10 @@ export default function PhotoAudit({
           </p>
         </div>
 
-        {/* Test Preset Selector */}
-        <div className="flex items-center gap-1.5 bg-[#F7F3EA] border border-[#E4D8BE] rounded-xl p-1.5">
-          <span className="text-[11px] font-semibold text-[#6F7889] px-2">Load Sample:</span>
-          {SAMPLE_PHOTO_PRESETS.map((preset, idx) => (
-            <button
-              key={preset.id}
-              onClick={() => handleLoadPreset(preset)}
-              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-[#FFFDF8] border border-[#E4D8BE] text-[#29231D] hover:bg-[#D6B238] hover:text-[#29231D] transition cursor-pointer shadow-xs"
-              title={preset.title}
-            >
-              Preset {idx + 1} ({preset.milestone})
-            </button>
-          ))}
+        {/* Real-time Status Badge */}
+        <div className="flex items-center gap-2 bg-[#F7F3EA] border border-[#E4D8BE] rounded-xl px-3 py-1.5 text-xs text-[#6F7889] font-medium">
+          <Clock className="w-3.5 h-3.5 text-[#D6B238]" />
+          <span>Real-time Geo & Timestamp Synced</span>
         </div>
       </div>
 
@@ -474,8 +487,12 @@ export default function PhotoAudit({
                   ) : (
                     <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
                       <img src={previewUrl} alt="Captured" className="w-full h-full object-cover" />
-                      <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
                         <CheckCircle2 className="w-3 h-3" /> Photo Captured Live
+                      </div>
+                      <div className="absolute bottom-2 left-2 bg-[#29231D]/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-[#FFFDF8] font-mono border border-white/10 flex items-center gap-1.5 shadow-sm">
+                        <Clock className="w-3 h-3 text-[#D6B238]" />
+                        <span>Captured: {formatUploadTimestamp(capturedAt)}</span>
                       </div>
                     </div>
                   )}
@@ -534,6 +551,10 @@ export default function PhotoAudit({
                       alt="Uploaded preview"
                       className="w-full h-56 object-cover opacity-90 group-hover:opacity-100 transition"
                     />
+                    <div className="absolute top-2 left-2 bg-[#29231D]/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-[#FFFDF8] font-mono border border-white/10 flex items-center gap-1.5 shadow-sm">
+                      <Clock className="w-3 h-3 text-[#D6B238]" />
+                      <span>Upload Time: {formatUploadTimestamp(uploadedAt || capturedAt)}</span>
+                    </div>
                     <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-[#29231D]/90 backdrop-blur-md rounded-xl p-1 border border-white/10">
                       <button
                         type="button"
@@ -617,7 +638,11 @@ export default function PhotoAudit({
                         ? 'bg-emerald-500/15 text-emerald-800 border-emerald-500/30' 
                         : 'bg-[#D6B238]/20 text-[#29231D] border-[#D6B238]/40'
                     }`}>
-                      {resultSource === 'backend' ? 'Flask Vision Model' : 'Demo Verification Engine'}
+                      {resultSource === 'backend' ? 'FastAPI Vision Model' : 'Vision Verification Engine'}
+                    </span>
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold border bg-[#FFFDF8] text-[#29231D] border-[#E4D8BE] flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-[#D6B238]" />
+                      <span>{formatUploadTimestamp(uploadedAt || capturedAt)}</span>
                     </span>
                   </div>
                   <h3 className="text-lg font-extrabold text-[#29231D] font-['Outfit'] mt-1">

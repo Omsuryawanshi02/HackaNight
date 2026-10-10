@@ -20,17 +20,8 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Projects from './pages/Projects';
 
-// Initial Sample Data
-import { 
-  INITIAL_PROJECTS, 
-  INITIAL_DASHBOARD_STATS, 
-  MILESTONE_PROGRESS_DATA, 
-  MATERIAL_CONSUMPTION_DATA, 
-  INITIAL_MATERIAL_AUDITS, 
-  INITIAL_ANOMALIES, 
-  INITIAL_AUDITOR_REVIEWS, 
-  INITIAL_REPORTS 
-} from './data/sampleData';
+// Supabase Realtime Client
+import { supabase } from './services/supabaseClient';
 
 import { checkBackendHealth, getProjects, getAudits, getDashboardData } from './services/api';
 
@@ -68,17 +59,25 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [backendConnected, setBackendConnected] = useState(false);
 
-  // Core App Data
-  const [projects, setProjects] = useState(INITIAL_PROJECTS);
-  const [selectedProjectId, setSelectedProjectId] = useState(INITIAL_PROJECTS[0].id);
-  const [stats, setStats] = useState(INITIAL_DASHBOARD_STATS);
-  const [milestonesData] = useState(MILESTONE_PROGRESS_DATA);
-  const [materialsData] = useState(MATERIAL_CONSUMPTION_DATA);
+  // Core App Data (Strictly live from Supabase)
+  const [projects, setProjects] = useState([]);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [stats, setStats] = useState({
+    activeProjects: 0,
+    totalProjects: 0,
+    activeUsers: 0,
+    pendingReviews: 0,
+    verifiedMilestones: 0,
+    materialDiscrepancies: 0,
+    overallSafetyScore: 0
+  });
+  const [milestonesData, setMilestonesData] = useState([]);
+  const [materialsData, setMaterialsData] = useState([]);
   
-  const [materialAudits, setMaterialAudits] = useState(INITIAL_MATERIAL_AUDITS);
-  const [anomalies, setAnomalies] = useState(INITIAL_ANOMALIES);
-  const [auditReviews, setAuditReviews] = useState(INITIAL_AUDITOR_REVIEWS);
-  const [reports, setReports] = useState(INITIAL_REPORTS);
+  const [materialAudits, setMaterialAudits] = useState([]);
+  const [anomalies, setAnomalies] = useState([]);
+  const [auditReviews, setAuditReviews] = useState([]);
+  const [reports, setReports] = useState([]);
   
   const [activeReviewAudit, setActiveReviewAudit] = useState(null);
 
@@ -97,7 +96,7 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Fetch live backend data when connected
+  // Fetch live backend data from Supabase
   const syncLiveBackendData = useCallback(async () => {
     try {
       const [projRes, auditRes, dashRes] = await Promise.all([
@@ -106,19 +105,56 @@ export default function App() {
         getDashboardData()
       ]);
 
-      if (projRes.success && Array.isArray(projRes.data) && projRes.data.length > 0) {
+      if (projRes.success && Array.isArray(projRes.data)) {
         setProjects(projRes.data);
+        if (projRes.data.length > 0) {
+          setSelectedProjectId(prev => (prev && projRes.data.some(p => p.id === prev || p.code === prev)) ? prev : projRes.data[0].id);
+        }
       }
-      if (auditRes.success && Array.isArray(auditRes.data) && auditRes.data.length > 0) {
+      if (auditRes.success && Array.isArray(auditRes.data)) {
         setAuditReviews(auditRes.data);
       }
       if (dashRes.success && dashRes.data) {
         setStats(prev => ({ ...prev, ...dashRes.data }));
       }
     } catch (err) {
-      console.warn('Backend data sync notice:', err);
+      console.warn('Backend live data sync notice:', err);
     }
   }, []);
+
+  // Supabase Realtime Subscription:
+  // Projects created or assigned in Admin panel appear in real-time across all allotted roles
+  useEffect(() => {
+    const channel = supabase
+      .channel('projects-live-sync')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        (payload) => {
+          console.log('[Supabase Realtime] Project change event:', payload);
+          syncLiveBackendData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'project_members' },
+        (payload) => {
+          console.log('[Supabase Realtime] Project member allotment event:', payload);
+          syncLiveBackendData();
+        }
+      )
+      .subscribe((status, err) => {
+        if (err) {
+          console.warn('[Supabase Realtime] Subscription error:', err);
+        } else {
+          console.log('[Supabase Realtime] Channel status:', status);
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [syncLiveBackendData]);
 
   // Check Backend Connection Health (initial + recurring check)
   const verifyBackend = useCallback(async () => {
@@ -158,20 +194,22 @@ export default function App() {
     }
   }, []);
 
-  // Synchronize stats dynamically based on current lists
+  // Synchronize stats dynamically based on current live lists
   useEffect(() => {
     const pendingCount = auditReviews.filter(r => r.status === 'Pending Review').length;
-    const verifiedCount = auditReviews.filter(r => r.status === 'Approved').length + 20;
-    const discrepanciesCount = materialAudits.filter(m => m.status.includes('Discrepancy')).length + 
+    const verifiedCount = auditReviews.filter(r => r.status === 'Approved').length;
+    const discrepanciesCount = materialAudits.filter(m => m.status && m.status.includes('Discrepancy')).length + 
                                 anomalies.filter(a => a.status === 'Open' || a.status === 'Under Investigation').length;
 
     setStats(prev => ({
       ...prev,
+      activeProjects: projects.length,
+      totalProjects: projects.length,
       pendingReviews: pendingCount,
       verifiedMilestones: verifiedCount,
       materialDiscrepancies: discrepanciesCount
     }));
-  }, [auditReviews, materialAudits, anomalies]);
+  }, [projects, auditReviews, materialAudits, anomalies]);
 
   // Handlers for cross-page interactions
   const handleSaveMaterialAudit = (newRecord) => {

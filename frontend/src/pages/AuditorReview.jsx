@@ -6,11 +6,13 @@ import {
   Lock, 
   Camera, 
   UserCheck, 
-  Layers 
+  Layers,
+  Clock
 } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
+import { formatUploadTimestamp } from '../utils/dateUtils';
 import { submitAuditorDecision } from '../services/api';
 
 export default function AuditorReview({ 
@@ -106,7 +108,14 @@ export default function AuditorReview({
       ) 
     },
     { header: 'Submitted By', accessor: 'submittedBy' },
-    { header: 'Submission Date', accessor: 'submissionDate' },
+    { 
+      header: 'Upload Timestamp', 
+      cell: (r) => (
+        <span className="font-mono text-xs text-[#29231D] font-semibold">
+          {formatUploadTimestamp(r.uploadedAt || r.uploaded_at || r.capturedAt || r.submissionDate)}
+        </span>
+      ) 
+    },
     { 
       header: 'Risk Level', 
       cell: (r) => <StatusBadge status={r.riskLevel} size="sm" /> 
@@ -287,12 +296,16 @@ export default function AuditorReview({
                   <Camera className="w-4 h-4 text-[#D6B238]" />
                   <span>Submitted Site Photograph</span>
                 </h4>
-                <div className="rounded-xl overflow-hidden border border-[#E4D8BE] bg-[#29231D] h-64">
+                <div className="rounded-xl overflow-hidden border border-[#E4D8BE] bg-[#29231D] h-64 relative">
                   <img
                     src={selectedAudit.evidenceImage}
                     alt={selectedAudit.milestone}
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute bottom-2 left-2 bg-[#29231D]/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] text-[#FFFDF8] font-mono border border-white/10 flex items-center gap-1.5 shadow-sm">
+                    <Clock className="w-3 h-3 text-[#D6B238]" />
+                    <span>Upload Time: {formatUploadTimestamp(selectedAudit.uploadedAt || selectedAudit.uploaded_at || selectedAudit.capturedAt)}</span>
+                  </div>
                 </div>
               </div>
 

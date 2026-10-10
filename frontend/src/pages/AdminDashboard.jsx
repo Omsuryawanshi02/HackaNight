@@ -65,8 +65,8 @@ export default function AdminDashboard({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Projects"
-          value={stats.activeProjects || 4}
-          subtitle="4 enterprise sites active"
+          value={stats.activeProjects ?? stats.totalProjects ?? 0}
+          subtitle={`${stats.activeProjects ?? stats.totalProjects ?? 0} enterprise sites active`}
           icon={Building2}
           trend="All monitored"
           trendType="neutral"
@@ -74,7 +74,7 @@ export default function AdminDashboard({
         />
         <StatCard
           title="Active Users"
-          value={stats.activeUsers || 4}
+          value={stats.activeUsers ?? 4}
           subtitle="Contractors, Stores, Auditors"
           icon={Users}
           trend="RBAC protected"
@@ -83,7 +83,7 @@ export default function AdminDashboard({
         />
         <StatCard
           title="Pending Milestone Reviews"
-          value={stats.pendingReviews || pendingCount}
+          value={stats.pendingReviews ?? pendingCount}
           subtitle="Awaiting auditor verdict"
           icon={Clock}
           trend="In queue"
@@ -92,7 +92,7 @@ export default function AdminDashboard({
         />
         <StatCard
           title="Material Discrepancies"
-          value={stats.materialDiscrepancies || 4}
+          value={stats.materialDiscrepancies ?? 0}
           subtitle="Inventory variance flags"
           icon={AlertTriangle}
           trend="Requires action"
@@ -181,20 +181,28 @@ export default function AdminDashboard({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E4D8BE]">
-                {recentAudits.slice(0, 4).map((audit) => (
-                  <tr key={audit.id} className="hover:bg-[#EDE5D6]/40 transition">
-                    <td className="px-3.5 py-3 font-mono font-bold text-[#29231D]">{audit.id}</td>
-                    <td className="px-3.5 py-3">
-                      <p className="font-bold text-[#29231D]">{audit.milestone}</p>
-                      <p className="text-[10px] text-[#6F7889] font-medium">{audit.project}</p>
-                    </td>
-                    <td className="px-3.5 py-3 text-[#6F7889] font-medium">{audit.submittedBy}</td>
-                    <td className="px-3.5 py-3 font-bold text-[#29231D]">{audit.claimedPercentage}%</td>
-                    <td className="px-3.5 py-3">
-                      <StatusBadge status={audit.status} size="sm" />
+                {recentAudits && recentAudits.length > 0 ? (
+                  recentAudits.slice(0, 4).map((audit) => (
+                    <tr key={audit.id} className="hover:bg-[#EDE5D6]/40 transition">
+                      <td className="px-3.5 py-3 font-mono font-bold text-[#29231D]">{audit.id}</td>
+                      <td className="px-3.5 py-3">
+                        <p className="font-bold text-[#29231D]">{audit.milestone}</p>
+                        <p className="text-[10px] text-[#6F7889] font-medium">{audit.project}</p>
+                      </td>
+                      <td className="px-3.5 py-3 text-[#6F7889] font-medium">{audit.submittedBy}</td>
+                      <td className="px-3.5 py-3 font-bold text-[#29231D]">{audit.claimedPercentage}%</td>
+                      <td className="px-3.5 py-3">
+                        <StatusBadge status={audit.status} size="sm" />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-3.5 py-8 text-center text-xs text-[#6F7889]">
+                      No audit submissions recorded yet in Supabase.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -216,22 +224,28 @@ export default function AdminDashboard({
           </div>
 
           <div className="space-y-3">
-            {anomalies.slice(0, 3).map((anom) => (
-              <div
-                key={anom.id}
-                onClick={() => onNavigate('inventory-anomalies')}
-                className="p-3.5 rounded-xl border border-[#E4D8BE] bg-[#EDE5D6]/30 hover:bg-[#EDE5D6]/60 transition cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#29231D] truncate font-['Outfit']">{anom.material}</span>
-                  <StatusBadge status={anom.severity} size="sm" />
+            {anomalies && anomalies.length > 0 ? (
+              anomalies.slice(0, 3).map((anom) => (
+                <div
+                  key={anom.id}
+                  onClick={() => onNavigate('inventory-anomalies')}
+                  className="p-3.5 rounded-xl border border-[#E4D8BE] bg-[#EDE5D6]/30 hover:bg-[#EDE5D6]/60 transition cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#29231D] truncate font-['Outfit']">{anom.material}</span>
+                    <StatusBadge status={anom.severity} size="sm" />
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-[11px]">
+                    <span className="text-[#6F7889] font-medium">{anom.project}</span>
+                    <span className="font-bold text-rose-600">{anom.variance}</span>
+                  </div>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-[11px]">
-                  <span className="text-[#6F7889] font-medium">{anom.project}</span>
-                  <span className="font-bold text-rose-600">{anom.variance}</span>
-                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-xs text-[#6F7889] bg-[#EDE5D6]/20 rounded-xl border border-dashed border-[#E4D8BE]">
+                No active discrepancies flagged.
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

@@ -47,6 +47,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { getProjects } from '../services/api';
+import { formatUploadTimestamp } from '../utils/dateUtils';
 
 // Helper to transform raw project records into the supervisor workspace structure
 const mapProjectRecord = (p, defaultSupervisor) => ({
@@ -535,8 +536,8 @@ export default function Projects({
                     </div>
                     <div className="p-3.5">
                       <p className="text-xs font-bold text-[#29231D]">{ev.milestone}</p>
-                      <p className="text-[10px] text-[#6F7889] mt-0.5 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#D6B238]" /> {ev.timestamp}
+                      <p className="text-[10px] text-[#6F7889] mt-0.5 flex items-center gap-1 font-mono">
+                        <Clock className="w-3 h-3 text-[#D6B238]" /> {formatUploadTimestamp(ev.uploadedAt || ev.uploaded_at || ev.timestamp)}
                       </p>
                       <p className="text-[11px] text-[#29231D] mt-2 font-medium">{ev.notes}</p>
                     </div>

@@ -31,7 +31,7 @@ from app.core.supabase import (
     sync_supabase_user,
     verify_supabase_token,
 )
-from app.db.models import Alert, AuditLog, BOQItem, Project, ProjectMember, StockLedger, User
+from app.db.models import Alert, AuditLog, BOQItem, ClaimPhoto, Project, ProjectMember, StockLedger, User
 from app.db.session import get_db_session
 
 logger = logging.getLogger("siteaudit.frontend_api")
@@ -559,10 +559,45 @@ class CreateProjectBody(BaseModel):
 
 
 @router.get("/projects")
-async def api_get_projects(db: AsyncSession = Depends(get_db_session)) -> list[dict[str, Any]]:
-    """Return live projects list from Supabase."""
+async def api_get_projects(
+    authorization: str | None = Header(default=None),
+    x_user_role: str | None = Header(default=None),
+    db: AsyncSession = Depends(get_db_session)
+) -> list[dict[str, Any]]:
+    """Return live projects list from Supabase with allotment filtering."""
+    user_id: uuid.UUID | None = None
+    user_role: str = (x_user_role or "").strip().upper()
+    if authorization and "Bearer " in authorization:
+        try:
+            token = authorization.split(" ", 1)[1].strip()
+            user_info = await verify_supabase_token(token)
+            email = user_info.get("email")
+            if not email:
+                payload = decode_jwt(token)
+                email = payload.get("email")
+                if not user_role:
+                    user_role = payload.get("role", "").upper()
+            if email:
+                u_res = await db.execute(select(User).where(User.email == email.lower()))
+                u_obj = u_res.scalar_one_or_none()
+                if u_obj:
+                    user_id = u_obj.id
+                    if not user_role:
+                        user_role = (u_obj.role or "").upper()
+        except Exception:
+            pass
+
     result = await db.execute(select(Project).order_by(Project.created_at.desc()))
-    db_projects = result.scalars().all()
+    db_projects = list(result.scalars().all())
+
+    # If non-admin user is querying, filter by allotment in project_members
+    is_admin_user = "ADMIN" in user_role or "MAIN" in user_role or user_role == ""
+    if not is_admin_user and user_id:
+        member_proj_res = await db.execute(
+            select(ProjectMember.project_id).where(ProjectMember.user_id == user_id)
+        )
+        allotted_proj_ids = set(member_proj_res.scalars().all())
+        db_projects = [p for p in db_projects if p.id in allotted_proj_ids or p.code in allotted_proj_ids]
 
     # Query persistent metadata stored in Supabase AuditLog
     meta_result = await db.execute(select(AuditLog).where(AuditLog.entity_type == "project_meta"))
@@ -667,6 +702,20 @@ async def api_create_project(
         status="Active",
     )
     db.add(new_proj)
+
+    # Insert allotment records into project_members for active roles
+    try:
+        users_result = await db.execute(select(User).where(User.is_active == True))
+        active_users = users_result.scalars().all()
+        for u in active_users:
+            member = ProjectMember(
+                project_id=new_proj.id,
+                user_id=u.id,
+                role_on_project=u.role
+            )
+            db.add(member)
+    except Exception as member_exc:
+        logger.warning("Project membership allotment note: %s", member_exc)
 
     # Persist complete project metadata to Supabase AuditLog
     try:
@@ -1094,6 +1143,9 @@ class CreateAuditBody(BaseModel):
     submittedBy: str | None = "Site Supervisor"
     submissionDate: str | None = None
     submittedAt: str | None = None
+    capturedAt: str | None = None
+    uploadedAt: str | None = None
+    evidenceImageHash: str | None = None
     status: str = "Pending Review"
     riskLevel: str = "Low"
     aiSummary: str | None = ""
@@ -1116,6 +1168,31 @@ async def api_create_audit(
     curr_year = now.year
     audit_id = body.id or f"AUD-{curr_year}-{int(datetime.now().timestamp() * 1000) % 900 + 100}"
     sub_date = body.submissionDate or body.submittedAt or now.strftime("%Y-%m-%d %H:%M")
+    server_uploaded_at_iso = now.isoformat()
+
+    # Store authoritative server-side record in claim_photos table
+    photo_id = uuid.uuid4()
+    photo_hash = body.evidenceImageHash or hashlib.sha256(audit_id.encode()).hexdigest()
+    parsed_captured_at = None
+    if body.capturedAt:
+        try:
+            parsed_captured_at = datetime.fromisoformat(body.capturedAt.replace("Z", "+00:00"))
+        except Exception:
+            pass
+
+    try:
+        claim_photo_record = ClaimPhoto(
+            id=photo_id,
+            claim_id=None,
+            storage_key=f"live_captures/{audit_id}_{int(now.timestamp())}.jpg",
+            sha256=photo_hash,
+            uploaded_at=now,
+            captured_at=parsed_captured_at,
+            integrity_flags=[],
+        )
+        db.add(claim_photo_record)
+    except Exception as photo_err:
+        logger.warning("ClaimPhoto persistence note: %s", photo_err)
 
     audit_entry = {
         "id": audit_id,
@@ -1126,6 +1203,9 @@ async def api_create_audit(
         "submittedBy": body.submittedBy,
         "submissionDate": sub_date,
         "submittedAt": sub_date,
+        "uploadedAt": server_uploaded_at_iso,
+        "capturedAt": body.capturedAt,
+        "photoId": str(photo_id),
         "status": body.status,
         "riskLevel": body.riskLevel,
         "aiSummary": body.aiSummary,
@@ -1156,61 +1236,11 @@ async def api_create_audit(
         await db.rollback()
 
     LIVE_AUDITS_STORE.insert(0, audit_entry)
-    return {"success": True, "data": audit_entry}
+    return {"success": True, "data": audit_entry, "uploadedAt": server_uploaded_at_iso}
 
 
 @router.get("/audits")
 async def api_get_audits(db: AsyncSession = Depends(get_db_session)) -> list[dict[str, Any]]:
-    now = datetime.now(timezone.utc)
-    d1 = (now - timedelta(hours=4)).strftime("%Y-%m-%d %H:%M")
-    d2 = (now - timedelta(days=1, hours=2)).strftime("%Y-%m-%d %H:%M")
-    curr_year = now.year
-
-    default_audits = [
-        {
-            "id": f"AUD-{curr_year}-041",
-            "project": "Riverside Commercial Tower A",
-            "auditType": "Photo Milestone Verification",
-            "milestone": "Tower Floor 6 Slab Pour Preparation",
-            "claimedPercentage": 80,
-            "submittedBy": "Rajesh Varma (Site Supervisor)",
-            "submissionDate": d1,
-            "submittedAt": d1,
-            "status": "Pending Review",
-            "riskLevel": "Medium",
-            "aiSummary": "Evidence supports ~75% reinforcement completion. Missing visual check on eastern edge formwork kickers.",
-            "materialSummary": "Cement consumption discrepancy (+15.8%) flagged on same pour zone.",
-            "evidenceImage": "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?auto=format&fit=crop&w=1200&q=80",
-            "photoUrl": "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?auto=format&fit=crop&w=1200&q=80",
-            "aiConfidence": 94.8,
-            "detectedItems": ["Rebar Mesh Spacing 150mm", "Formwork Bracing Conforming", "Cover Blocks 40mm"],
-            "auditorDecision": None,
-            "auditorNotes": "",
-            "decisionDate": None,
-        },
-        {
-            "id": f"AUD-{curr_year}-042",
-            "project": "Metro Line 3 Sub-Station",
-            "auditType": "Material Reconciliation",
-            "milestone": "Pier 42-48 Foundation Pile Caps",
-            "claimedPercentage": 100,
-            "submittedBy": "Suresh Mehta (Store Incharge)",
-            "submissionDate": d2,
-            "submittedAt": d2,
-            "status": "Approved",
-            "riskLevel": "Low",
-            "aiSummary": "Rebar BBS reconciliation confirmed within 1.1% tolerance. Cube testing reports passed at 28-day 45MPa.",
-            "materialSummary": "Tata Tiscon 42.4 MT steel reconciled against weighbridge slips.",
-            "evidenceImage": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
-            "photoUrl": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
-            "aiConfidence": 98.2,
-            "detectedItems": ["Tata Tiscon Rebar Reconciled", "Cube Strength Verified 45MPa", "Weighbridge Slips Archival Check"],
-            "auditorDecision": "Approved",
-            "auditorNotes": "All NABL test certificates verified. Weight slips match challan. Approved for payment certification.",
-            "decisionDate": d1,
-        },
-    ]
-
     # Query persistent audits and decisions from Supabase AuditLog
     supabase_audits: list[dict[str, Any]] = []
     try:
@@ -1244,10 +1274,6 @@ async def api_get_audits(db: AsyncSession = Depends(get_db_session)) -> list[dic
     seen = {a["id"] for a in supabase_audits}
     combined = list(supabase_audits)
     for a in LIVE_AUDITS_STORE:
-        if a["id"] not in seen:
-            combined.append(a)
-            seen.add(a["id"])
-    for a in default_audits:
         if a["id"] not in seen:
             combined.append(a)
             seen.add(a["id"])
