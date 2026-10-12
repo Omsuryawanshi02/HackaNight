@@ -74,7 +74,7 @@ export default function AdminDashboard({
         />
         <StatCard
           title="Active Users"
-          value={stats.activeUsers ?? 4}
+          value={stats.activeUsers ?? 0}
           subtitle="Contractors, Stores, Auditors"
           icon={Users}
           trend="RBAC protected"

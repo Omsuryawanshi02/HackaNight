@@ -51,22 +51,16 @@ export default function Dashboard({
     return formatUploadTimestamp(d);
   };
 
-  const now = new Date();
-  const dCompleted = new Date(now);
-  dCompleted.setDate(now.getDate() - 25);
-  const dActive = new Date(now);
-  dActive.setDate(now.getDate() - 3);
-  const dNext = new Date(now);
-  dNext.setDate(now.getDate() + 20);
-  const dFuture = new Date(now);
-  dFuture.setDate(now.getDate() + 65);
-
-  const dynamicMilestones = [
-    { name: 'Foundation', status: currentProgressPct >= 20 ? 'Verified' : 'In Progress', percent: Math.min(100, Math.max(0, currentProgressPct >= 20 ? 100 : currentProgressPct * 5)), date: formatDisplayDate(dCompleted) },
-    { name: 'Structure', status: currentProgressPct >= 80 ? 'Verified' : (currentProgressPct >= 20 ? 'In Progress' : 'Pending'), percent: Math.min(100, Math.max(0, currentProgressPct)), date: formatDisplayDate(dActive) },
-    { name: 'Electrical', status: currentProgressPct >= 60 ? 'In Progress' : 'Pending', percent: Math.round(currentProgressPct * 0.63), date: formatDisplayDate(dNext) },
-    { name: 'Finishing', status: currentProgressPct > 80 ? 'In Progress' : 'Pending', percent: Math.round(currentProgressPct * 0.24), date: formatDisplayDate(dFuture) }
-  ];
+  const projectMilestones = (milestonesData && milestonesData.length > 0)
+    ? milestonesData
+    : (currentProject?.milestones && currentProject.milestones.length > 0)
+      ? currentProject.milestones.map(m => ({
+          name: m.name || m.title || 'Milestone',
+          status: m.status || (m.completed ? 'Verified' : 'In Progress'),
+          percent: m.percent ?? m.completionPercent ?? (m.completed ? 100 : 0),
+          date: m.date || m.dueDate || '-'
+        }))
+      : [];
 
   const evidenceCards = (recentAudits && recentAudits.length > 0)
     ? recentAudits.slice(0, 3).map((a, idx) => ({
@@ -191,50 +185,57 @@ export default function Dashboard({
               <div className="bg-[#727C3E] h-full rounded-full transition-all duration-500" style={{ width: `${currentProgressPct}%` }}></div>
             </div>
 
-            {/* Dynamic Milestone List */}
+            {/* Project Milestones List */}
             <div className="mt-6 space-y-3.5">
-              {dynamicMilestones.map((m, idx) => (
-                <div 
-                  key={idx}
-                  onClick={() => onNavigate('photo-audit')}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE] hover:border-[#D6B238] transition cursor-pointer group shadow-xs"
-                  title={`Click to capture evidence for ${m.name}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#D6B238]/20 text-[#29231D] flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                      <Building2 className="w-4 h-4 text-[#29231D]" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#29231D] group-hover:text-[#8f7215] transition">{m.name}</p>
-                      {m.status === 'Verified' ? (
-                        <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
-                          <Check className="w-3 h-3" /> Verified
-                        </span>
-                      ) : m.status === 'In Progress' ? (
-                        <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                          In Progress
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
-                          Pending
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2">
-                      <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${m.percent === 100 ? 'bg-[#727C3E]' : 'bg-[#D6B238]'}`} 
-                          style={{ width: `${m.percent}%` }}
-                        ></div>
+              {projectMilestones.length > 0 ? (
+                projectMilestones.map((m, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={() => onNavigate('photo-audit')}
+                    className="flex items-center justify-between p-3 rounded-xl bg-[#F7F3EA] border border-[#E4D8BE] hover:border-[#D6B238] transition cursor-pointer group shadow-xs"
+                    title={`Click to view evidence for ${m.name}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#D6B238]/20 text-[#29231D] flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+                        <Building2 className="w-4 h-4 text-[#29231D]" />
                       </div>
-                      <span className="text-xs font-extrabold text-[#29231D]">{m.percent}%</span>
+                      <div>
+                        <p className="text-xs font-bold text-[#29231D] group-hover:text-[#8f7215] transition">{m.name}</p>
+                        {m.status === 'Verified' ? (
+                          <span className="text-[10px] font-bold text-[#727C3E] bg-[#727C3E]/20 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit mt-0.5">
+                            <Check className="w-3 h-3" /> Verified
+                          </span>
+                        ) : m.status === 'In Progress' ? (
+                          <span className="text-[10px] font-bold text-[#8f7215] bg-[#D6B238]/20 px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                            In Progress
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-[#6F7889] bg-[#EDE5D6] px-2 py-0.5 rounded-full w-fit mt-0.5 block">
+                            Pending
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-[10px] text-[#6F7889] mt-1 font-medium">{m.date}</p>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 bg-[#EDE5D6] h-2 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${m.percent === 100 ? 'bg-[#727C3E]' : 'bg-[#D6B238]'}`} 
+                            style={{ width: `${m.percent}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-extrabold text-[#29231D]">{m.percent}%</span>
+                      </div>
+                      <p className="text-[10px] text-[#6F7889] mt-1 font-medium">{m.date}</p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-[#6F7889] text-xs font-medium bg-[#EDE5D6]/20 rounded-xl border border-dashed border-[#E4D8BE]">
+                  <p>No project milestones logged yet.</p>
+                  <p className="text-[10px] text-[#6F7889] mt-1">Milestones will appear here once defined for this project.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -268,10 +269,12 @@ export default function Dashboard({
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=600&q=80';
+                          e.target.style.display = 'none';
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-center">
+                        <Camera className="w-8 h-8 text-[#D6B238]/60" />
+                      </div>
                     </div>
                     <div className="p-3">
                       <h3 className="text-xs font-bold text-[#29231D] truncate">{card.title}</h3>

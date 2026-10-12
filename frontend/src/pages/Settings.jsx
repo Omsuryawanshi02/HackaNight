@@ -54,7 +54,7 @@ export default function Settings({ backendConnected, onRefreshBackendStatus, onR
               : 'bg-[#C84B31]/20 text-[#C84B31]'
           }`}>
             {backendConnected ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-            <span>{backendConnected ? 'Connected (Live)' : 'Disconnected (Demo Fallback)'}</span>
+            <span>{backendConnected ? 'Connected (Live)' : 'Disconnected (Backend Offline)'}</span>
           </div>
         </div>
 
@@ -83,22 +83,22 @@ export default function Settings({ backendConnected, onRefreshBackendStatus, onR
         </div>
       </div>
 
-      {/* Demo State Data Management */}
+      {/* Workspace Data Management */}
       <div className="bg-[#FFFDF8] rounded-2xl border border-[#E4D8BE] p-6 space-y-4 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#D6B238]/20 text-[#29231D] flex items-center justify-center font-bold">
             <Database className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[#29231D] font-['Outfit']">Sample Data Management</h3>
-            <p className="text-xs text-[#6F7889]">Reset local demo state to default initial records</p>
+            <h3 className="text-sm font-bold text-[#29231D] font-['Outfit']">Workspace Cache Management</h3>
+            <p className="text-xs text-[#6F7889]">Manage and clear local browser-cached audit states and drafts</p>
           </div>
         </div>
 
         <div className="pt-3 border-t border-[#E4D8BE] flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold text-[#29231D]">Reset All Mock State Data</p>
-            <p className="text-[11px] text-[#6F7889]">Resets material audits, anomalies, auditor reviews, and reports to default initial seed data.</p>
+            <p className="text-xs font-bold text-[#29231D]">Clear Local Audit Cache</p>
+            <p className="text-[11px] text-[#6F7889]">Clears all local drafts and restores an empty, clean audit workspace.</p>
           </div>
           <button
             onClick={() => {
@@ -106,14 +106,14 @@ export default function Settings({ backendConnected, onRefreshBackendStatus, onR
               if (onShowToast) {
                 onShowToast({
                   type: 'success',
-                  title: 'State Reset Complete',
-                  message: 'Mock datasets restored to initial seed state.'
+                  title: 'Cache Cleared',
+                  message: 'Local workspace data and drafts reset to clean state.'
                 });
               }
             }}
             className="btn-secondary-sandstone text-xs px-4 py-2 rounded-xl font-bold text-[#29231D] border border-[#E4D8BE] hover:bg-[#EDE5D6] cursor-pointer"
           >
-            Reset Workspace Data
+            Clear Workspace Data
           </button>
         </div>
       </div>

@@ -22,13 +22,15 @@ export default function PhotoAudit({
   onShowToast, 
   backendConnected
 }) {
-  const currentProject = projects.find(p => p.id === selectedProjectId) || projects[0];
+  const currentProject = (projects && projects.length > 0)
+    ? (projects.find(p => p.id === selectedProjectId) || projects[0])
+    : null;
 
   // Form State
-  const [projectName, setProjectName] = useState(currentProject ? currentProject.name : 'Active Site');
-  const [siteLocation, setSiteLocation] = useState(currentProject?.location || 'Main Site Slab Pour Area');
-  const [milestone, setMilestone] = useState('Slab');
-  const [claimedPercentage, setClaimedPercentage] = useState(80);
+  const [projectName, setProjectName] = useState(currentProject ? currentProject.name : '');
+  const [siteLocation, setSiteLocation] = useState(currentProject?.location || '');
+  const [milestone, setMilestone] = useState('');
+  const [claimedPercentage, setClaimedPercentage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [capturedAt, setCapturedAt] = useState(null);
@@ -225,64 +227,23 @@ export default function PhotoAudit({
           message: 'Received verification response from backend audit engine.'
         });
         return;
+      } else {
+        setIsAnalyzing(false);
+        onShowToast?.({
+          type: 'error',
+          title: 'Analysis Error',
+          message: res?.error || 'Backend audit service returned an error. Please retry.'
+        });
+        return;
       }
     }
 
-    setTimeout(() => {
-      setAnalysisStep('Detecting structural members, formwork alignment, and rebar mesh spacing...');
-    }, 800);
-
-    setTimeout(() => {
-      setAnalysisStep('Benchmarking observable progress against standard engineering specifications...');
-    }, 1600);
-
-    setTimeout(() => {
-      let assessmentStatus = 'Evidence Supports Claim';
-      let estRange = `${claimedPercentage - 5}% - ${claimedPercentage + 2}%`;
-      let visible = [
-        `Structural ${milestone} geometry clearly visible in camera frame`,
-        'Formwork / shuttering appears secure and aligned',
-        'Physical components match general site arrangement drawing'
-      ];
-      let missing = [
-        'Single photograph perspective limits structural 360-degree inspection',
-        'Hidden or covered areas require physical tap test / ultrasound'
-      ];
-      let rec = `Physical evidence generally supports the claimed ${claimedPercentage}% progress. Certified auditor review recommended before releasing payment.`;
-
-      if (claimedPercentage > 85 && milestone === 'Columns') {
-        assessmentStatus = 'Needs Additional Evidence';
-        estRange = '65% - 75%';
-        missing.push('7-day or 28-day concrete cube compressive strength test certificate not attached.');
-        rec = 'Request 28-day concrete compressive test report before certifying 85%+ completion.';
-      } else if (claimedPercentage >= 70 && milestone === 'Brickwork') {
-        assessmentStatus = 'Claim Requires Review';
-        estRange = '40% - 48%';
-        visible = ['Brick courses completed up to sill level only'];
-        missing = ['Upper courses and lintel band casting not completed'];
-        rec = `Claimed ${claimedPercentage}% exceeds observable sill-height masonry. Recommend physical joint inspection with contractor.`;
-      }
-
-      setAnalysisResult({
-        claimedMilestone: `${milestone} Construction Verification`,
-        assessmentStatus,
-        confidenceScore: 88,
-        estimatedProgressRange: estRange,
-        visibleEvidence: visible,
-        missingEvidence: missing,
-        recommendation: rec,
-        notes: 'Notice: Computer vision estimates physical visual cues. Engineering regulations require accredited site auditor sign-off.'
-      });
-
-      setResultSource('demo');
-      setUploadedAt(new Date().toISOString());
-      setIsAnalyzing(false);
-      onShowToast?.({
-        type: 'success',
-        title: 'Analysis Complete',
-        message: 'Photographic assessment generated with evidence cues.'
-      });
-    }, 2400);
+    setIsAnalyzing(false);
+    onShowToast?.({
+      type: 'warning',
+      title: 'Backend Unavailable',
+      message: 'FastAPI VLM service is offline on port 8000. Please start the backend service to run vision audits.'
+    });
   };
 
   const handleSubmitToAuditorQueue = async () => {

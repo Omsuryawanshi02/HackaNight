@@ -20,6 +20,9 @@ logger = logging.getLogger("siteaudit")
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: init DB on startup, dispose on shutdown."""
+    import asyncio
+    import os
+
     settings = get_settings()
     logger.info("Initializing database engine: %s", settings.database_url)
     init_db(settings.database_url)
@@ -29,14 +32,29 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         from app.db.base import get_engine
 
         engine = get_engine()
-        async with engine.begin() as conn:
-            # Import models so they register with Base.metadata
-            import app.db.models  # noqa: F401
 
-            await conn.run_sync(Base.metadata.create_all)
+        async def _verify_tables():
+            async with engine.begin() as conn:
+                import app.db.models  # noqa: F401
+
+                await conn.run_sync(Base.metadata.create_all)
+
+        await asyncio.wait_for(_verify_tables(), timeout=5.0)
         logger.info("Database tables verified/created.")
     except Exception as exc:
-        logger.warning("Auto table creation note (Alembic can also be run): %s", exc)
+        logger.warning("Primary database initialization note: %s", exc)
+        # If remote database failed/timed out and local dev.db is present, fall back to SQLite
+        if "postgres" in settings.database_url and (os.path.exists("./dev.db") or os.path.exists("dev.db")):
+            try:
+                logger.info("Attempting local SQLite (dev.db) fallback for offline/development resilience...")
+                init_db("sqlite+aiosqlite:///./dev.db")
+                engine = get_engine()
+                async with engine.begin() as conn:
+                    import app.db.models  # noqa: F401
+                    await conn.run_sync(Base.metadata.create_all)
+                logger.info("SQLite fallback tables verified/created.")
+            except Exception as fb_exc:
+                logger.warning("SQLite fallback note: %s", fb_exc)
 
     yield
 

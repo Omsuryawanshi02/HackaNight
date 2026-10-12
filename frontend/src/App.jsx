@@ -109,6 +109,8 @@ export default function App() {
         setProjects(projRes.data);
         if (projRes.data.length > 0) {
           setSelectedProjectId(prev => (prev && projRes.data.some(p => p.id === prev || p.code === prev)) ? prev : projRes.data[0].id);
+        } else {
+          setSelectedProjectId(null);
         }
       }
       if (auditRes.success && Array.isArray(auditRes.data)) {
@@ -282,10 +284,10 @@ export default function App() {
   };
 
   const handleResetData = () => {
-    setMaterialAudits(INITIAL_MATERIAL_AUDITS);
-    setAnomalies(INITIAL_ANOMALIES);
-    setAuditReviews(INITIAL_AUDITOR_REVIEWS);
-    setReports(INITIAL_REPORTS);
+    setMaterialAudits([]);
+    setAnomalies([]);
+    setAuditReviews([]);
+    setReports([]);
   };
 
   const handleSelectAuditForReview = (audit) => {

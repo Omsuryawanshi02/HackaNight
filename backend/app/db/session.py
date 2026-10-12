@@ -20,6 +20,12 @@ def _normalize_database_url(url: str) -> str:
     return url
 
 
+def _is_supabase_url(url: str) -> bool:
+    """Return True when the URL host belongs to Supabase."""
+    hostname = (urlsplit(url).hostname or "").lower()
+    return "supabase" in hostname
+
+
 def _is_supabase_pooler_url(url: str) -> bool:
     """Return True when the URL host is a Supabase pooler domain."""
     hostname = (urlsplit(url).hostname or "").lower()
@@ -30,18 +36,29 @@ def init_db(database_url: str) -> None:
     """Initialize the database engine and session factory."""
     norm_url = _normalize_database_url(database_url)
     connect_args = {}
+    if _is_supabase_url(norm_url):
+        connect_args["ssl"] = "require"
     if _is_supabase_pooler_url(norm_url):
-        connect_args = {"statement_cache_size": 0}
-    engine = create_async_engine(
-        norm_url, 
-        echo=False, 
-        future=True, 
-        pool_size=3,
-        max_overflow=2,
-        pool_recycle=300,
-        pool_pre_ping=True,
-        connect_args=connect_args
-    )
+        connect_args["statement_cache_size"] = 0
+
+    engine_kwargs = {
+        "echo": False,
+        "future": True,
+        "connect_args": connect_args,
+    }
+
+    if "sqlite" in norm_url:
+        # SQLite does not support standard PostgreSQL pool size options
+        pass
+    else:
+        engine_kwargs.update({
+            "pool_size": 3,
+            "max_overflow": 2,
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
+        })
+
+    engine = create_async_engine(norm_url, **engine_kwargs)
     set_engine(engine)
     global _session_factory
     _session_factory = async_sessionmaker(engine, expire_on_commit=False)

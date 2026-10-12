@@ -31,7 +31,7 @@ export default function Profile({ onShowToast, projects = [], backendConnected }
   // Form Fields State
   const [formData, setFormData] = useState({
     full_name: user?.full_name || '',
-    phone: user?.phone || '+1 (555) 234-5678',
+    phone: user?.phone || '',
     designation: user?.designation || (
       role === 'SITE_SUPERVISOR' || role === 'Main Supervisor' ? 'Senior Site Engineer' :
         role === 'STORE_INCHARGE' || role === 'Shopkeeper' ? 'Materials & Inventory Officer' :

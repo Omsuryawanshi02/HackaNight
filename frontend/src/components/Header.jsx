@@ -145,7 +145,9 @@ export default function Header({
     }
   };
 
-  const currentProject = projects.find(p => p.id === selectedProjectId) || projects[0];
+  const currentProject = (projects && projects.length > 0)
+    ? (projects.find(p => p.id === selectedProjectId) || projects[0])
+    : null;
 
   const formatDateRangeLabel = (startStr, endStr) => {
     try {
@@ -190,11 +192,7 @@ export default function Header({
     onDateRangeChange?.({ startDate, endDate, label: formatDateRangeLabel(startDate, endDate) });
   };
 
-  const notifications = [
-    { id: 1, title: 'Discrepancy Flagged', message: 'Tower B Cement consumption variance is +15.8%', time: '10m ago', unread: true },
-    { id: 2, title: 'New Photo Submitted', message: 'Pier 48 North Column Stem de-shuttering photo ready for audit', time: '1h ago', unread: true },
-    { id: 3, title: 'Decision Recorded', message: 'Foundation Pile Caps approved by Lead Auditor', time: '3h ago', unread: false }
-  ];
+  const notifications = [];
 
   return (
     <header className="sticky top-0 z-20 h-20 glass-header px-4 lg:px-8 flex items-center justify-between">
@@ -230,10 +228,10 @@ export default function Header({
               ? 'bg-[#727C3E]/15 text-[#727C3E] border-[#727C3E]/30'
               : 'bg-[#D6B238]/15 text-[#8f7215] border-[#D6B238]/30'
           }`}
-          title={backendConnected ? 'Connected to FastAPI Backend (127.0.0.1:8000)' : 'Running in Offline / Demo Mode'}
+          title={backendConnected ? 'Connected to FastAPI Backend (127.0.0.1:8000)' : 'Backend Service Offline (127.0.0.1:8000)'}
         >
           <span className={`w-2 h-2 rounded-full ${backendConnected ? 'bg-[#727C3E] animate-pulse' : 'bg-[#D6B238]'}`} />
-          <span>{backendConnected ? 'Backend Live' : 'Demo Mode'}</span>
+          <span>{backendConnected ? 'Backend Live' : 'Backend Offline'}</span>
         </div>
 
         {/* Interactive Calendar Date Range Selector */}
@@ -406,24 +404,31 @@ export default function Header({
                   )}
                 </div>
                 <div className="max-h-60 overflow-y-auto divide-y divide-[#E4D8BE]/40">
-                  {projects.map((proj) => (
-                    <button
-                      key={proj.id}
-                      onClick={() => {
-                        onSelectProject(proj.id);
-                        setShowProjectMenu(false);
-                      }}
-                      className="w-full px-4 py-2.5 text-left hover:bg-[#EDE5D6] flex items-center justify-between transition cursor-pointer"
-                    >
-                      <div className="min-w-0 pr-2">
-                        <p className="text-xs font-bold text-[#29231D] truncate">{proj.name}</p>
-                        <p className="text-[11px] text-[#6F7889] truncate">{proj.location}</p>
-                      </div>
-                      {proj.id === selectedProjectId && (
-                        <Check className="w-4 h-4 text-[#727C3E] shrink-0" />
-                      )}
-                    </button>
-                  ))}
+                  {projects.length === 0 ? (
+                    <div className="px-4 py-5 text-center text-xs text-[#6F7889]">
+                      <p className="font-semibold text-[#29231D]">No active sites registered</p>
+                      <p className="text-[11px] mt-0.5">Use "+ Create New Project" below to add a site.</p>
+                    </div>
+                  ) : (
+                    projects.map((proj) => (
+                      <button
+                        key={proj.id}
+                        onClick={() => {
+                          onSelectProject(proj.id);
+                          setShowProjectMenu(false);
+                        }}
+                        className="w-full px-4 py-2.5 text-left hover:bg-[#EDE5D6] flex items-center justify-between transition cursor-pointer"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <p className="text-xs font-bold text-[#29231D] truncate">{proj.name}</p>
+                          <p className="text-[11px] text-[#6F7889] truncate">{proj.location}</p>
+                        </div>
+                        {proj.id === selectedProjectId && (
+                          <Check className="w-4 h-4 text-[#727C3E] shrink-0" />
+                        )}
+                      </button>
+                    ))
+                  )}
                 </div>
 
                 {/* Option for Admin to Add or Create Project */}
@@ -468,18 +473,26 @@ export default function Header({
               <div className="fixed inset-x-3 max-w-sm mx-auto sm:max-w-none sm:mx-0 sm:inset-x-auto sm:absolute sm:right-0 sm:w-80 top-20 sm:top-full mt-1 sm:mt-2 bg-[#FFFDF8] rounded-xl shadow-2xl border border-[#E4D8BE] py-2 z-40 animate-in fade-in zoom-in-95 duration-150">
                 <div className="px-4 py-2.5 border-b border-[#E4D8BE] flex items-center justify-between">
                   <h4 className="text-xs font-bold text-[#29231D] font-['Outfit']">Audit Notifications</h4>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-[#D6B238]/20 text-[#29231D] font-bold">2 New</span>
+                  {notifications.length > 0 && (
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-[#D6B238]/20 text-[#29231D] font-bold">{notifications.length} New</span>
+                  )}
                 </div>
                 <div className="divide-y divide-[#E4D8BE] max-h-72 overflow-y-auto">
-                  {notifications.map((n) => (
-                    <div key={n.id} className="p-3.5 hover:bg-[#EDE5D6]/50 transition cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#29231D]">{n.title}</span>
-                        <span className="text-[10px] text-[#6F7889]">{n.time}</span>
-                      </div>
-                      <p className="text-[11px] text-[#6F7889] mt-1">{n.message}</p>
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-[#6F7889]">
+                      No audit notifications
                     </div>
-                  ))}
+                  ) : (
+                    notifications.map((n) => (
+                      <div key={n.id} className="p-3.5 hover:bg-[#EDE5D6]/50 transition cursor-pointer">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#29231D]">{n.title}</span>
+                          <span className="text-[10px] text-[#6F7889]">{n.time}</span>
+                        </div>
+                        <p className="text-[11px] text-[#6F7889] mt-1">{n.message}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </>

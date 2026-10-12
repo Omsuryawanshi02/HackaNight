@@ -24,54 +24,6 @@ export const UNITS = [
   { value: 'Pcs', label: 'Pieces (Bricks / Pavers)' }
 ];
 
-export const MATERIAL_PRESETS = [
-  {
-    id: 'cement-discrepancy',
-    label: 'High Variance Case (Cement)',
-    material: 'Ultratech OPC 53 Cement',
-    unit: 'Bags',
-    supplier: 'Apex Building Solutions Ltd',
-    challanNo: `CH-${new Date().getFullYear()}-8841`,
-    challanQty: 1000,
-    receivedQty: 960,
-    openingStock: 250,
-    deliveredQty: 960,
-    supplierReturns: 10,
-    closingPhysicalStock: 320,
-    recordedConsumption: 760
-  },
-  {
-    id: 'steel-balanced',
-    label: 'Balanced Clean Case (TMT Steel)',
-    material: 'Tata Tiscon Fe500D 20mm Rebar',
-    unit: 'Tonnes',
-    supplier: 'Tata Tiscon Direct Infra',
-    challanNo: 'CH-TT-99321',
-    challanQty: 42.5,
-    receivedQty: 42.4,
-    openingStock: 12.0,
-    deliveredQty: 42.4,
-    supplierReturns: 0.0,
-    closingPhysicalStock: 18.2,
-    recordedConsumption: 35.8
-  },
-  {
-    id: 'rmc-loss',
-    label: 'Transit Rejection Case (RMC)',
-    material: 'Ready Mix Concrete M30',
-    unit: 'm³',
-    supplier: 'ACC Concrete Express',
-    challanNo: 'RMC-ACC-4412',
-    challanQty: 180,
-    receivedQty: 172,
-    openingStock: 0,
-    deliveredQty: 172,
-    supplierReturns: 4,
-    closingPhysicalStock: 0,
-    recordedConsumption: 154
-  }
-];
-
 export default function MaterialAudit({ 
   projects = [], 
   selectedProjectId, 
@@ -81,49 +33,28 @@ export default function MaterialAudit({
   onShowToast,
   backendConnected
 }) {
-  const currentProject = projects.find(p => p.id === selectedProjectId) || projects[0];
+  const currentProject = (projects && projects.length > 0)
+    ? (projects.find(p => p.id === selectedProjectId) || projects[0])
+    : null;
 
   // Form State
   const [formData, setFormData] = useState({
-    projectName: currentProject ? currentProject.name : 'Skyline Heights Tower B',
-    material: 'Ultratech OPC 53 Cement',
+    projectName: currentProject ? currentProject.name : '',
+    material: '',
     unit: 'Bags',
-    supplier: 'Apex Building Solutions Ltd',
-    challanNo: `CH-${new Date().getFullYear()}-8841`,
-    challanQty: 1000,
-    receivedQty: 960,
-    openingStock: 250,
-    deliveredQty: 960,
-    supplierReturns: 10,
-    closingPhysicalStock: 320,
-    recordedConsumption: 760,
-    notes: 'Site store reconciliation for 6th floor slab casting batch.'
+    supplier: '',
+    challanNo: '',
+    challanQty: '',
+    receivedQty: '',
+    openingStock: '',
+    deliveredQty: '',
+    supplierReturns: '',
+    closingPhysicalStock: '',
+    recordedConsumption: '',
+    notes: ''
   });
 
   const [ocrLoading, setOcrLoading] = useState(false);
-
-  // Load Preset
-  const handleLoadPreset = (preset) => {
-    setFormData(prev => ({
-      ...prev,
-      material: preset.material,
-      unit: preset.unit,
-      supplier: preset.supplier,
-      challanNo: preset.challanNo,
-      challanQty: preset.challanQty,
-      receivedQty: preset.receivedQty,
-      openingStock: preset.openingStock,
-      deliveredQty: preset.deliveredQty,
-      supplierReturns: preset.supplierReturns,
-      closingPhysicalStock: preset.closingPhysicalStock,
-      recordedConsumption: preset.recordedConsumption
-    }));
-    onShowToast?.({
-      type: 'info',
-      title: 'Scenario Loaded',
-      message: `Populated with ${preset.label}`
-    });
-  };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -205,22 +136,12 @@ export default function MaterialAudit({
       }
     }
 
-    setTimeout(() => {
-      setFormData(prev => ({
-        ...prev,
-        supplier: 'UltraTech ReadyMix Concretes Ltd',
-        challanNo: `CH-OCR-${Math.floor(1000 + Math.random() * 9000)}`,
-        challanQty: 1200,
-        receivedQty: 1150,
-        notes: 'Extracted automatically from paper delivery ticket scan.'
-      }));
-      setOcrLoading(false);
-      onShowToast?.({
-        type: 'success',
-        title: 'OCR Scan Completed',
-        message: 'Delivery challan values extracted and applied to form.'
-      });
-    }, 1500);
+    setOcrLoading(false);
+    onShowToast?.({
+      type: 'warning',
+      title: 'OCR Extraction Unavailable',
+      message: 'OCR service unreachable or unable to parse image. Please enter delivery challan details manually.'
+    });
   };
 
   const handleSave = async () => {
@@ -318,19 +239,6 @@ export default function MaterialAudit({
           </p>
         </div>
 
-        {/* Preset Selector */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#EDE5D6] border border-[#E4D8BE] rounded-xl p-1.5">
-          <span className="text-[11px] font-semibold text-[#6F7889] px-2">Sample Presets:</span>
-          {MATERIAL_PRESETS.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => handleLoadPreset(p)}
-              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#FFFDF8] hover:bg-[#D6B238] hover:text-[#29231D] border border-[#E4D8BE] transition cursor-pointer text-[#29231D]"
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Main Grid: Form & Output */}

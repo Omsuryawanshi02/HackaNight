@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     # derived settings
     @property
     def is_production(self) -> bool:
-        return self.database_url.drivername.startswith("postgres")
+        return "postgres" in self.database_url
 
     @property
     def is_development(self) -> bool:

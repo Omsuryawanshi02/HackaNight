@@ -28,67 +28,7 @@ export const clearAuthToken = () => {
   localStorage.removeItem('PRAMAAN_cached_user');
 };
 
-export const MOCK_USERS = {
-  'supervisor@PRAMAAN.ai': {
-    id: 'USR-SUP-01',
-    full_name: 'Rajesh Varma',
-    email: 'supervisor@PRAMAAN.ai',
-    role: 'SITE_SUPERVISOR',
-    employee_id: 'EMP-SUP-01',
-    must_change_password: false,
-    assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
-  },
-  'store@PRAMAAN.ai': {
-    id: 'USR-STR-01',
-    full_name: 'Suresh Mehta',
-    email: 'store@PRAMAAN.ai',
-    role: 'STORE_INCHARGE',
-    employee_id: 'EMP-STR-09',
-    must_change_password: false,
-    assigned_project_ids: ['PRJ-101']
-  },
-  'auditor@PRAMAAN.ai': {
-    id: 'USR-AUD-01',
-    full_name: 'Pooja Iyer, PE',
-    email: 'auditor@PRAMAAN.ai',
-    role: 'AUDIT_MANAGER',
-    employee_id: 'EMP-AUD-02',
-    must_change_password: false,
-    assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103']
-  },
-  'omsuryawanshi006@gmail.com': {
-    id: 'USR-ADM-01',
-    full_name: 'Om Suryawanshi',
-    email: 'omsuryawanshi006@gmail.com',
-    role: 'ADMIN',
-    employee_id: 'EMP-ADM-00',
-    must_change_password: false,
-    assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
-  }
-};
 
-const getOrCreateMockUser = (email) => {
-  const norm = email.toLowerCase().trim();
-  if (MOCK_USERS[norm]) return MOCK_USERS[norm];
-
-  let inferredRole = 'SITE_SUPERVISOR';
-  if (norm.includes('store') || norm.includes('shop')) inferredRole = 'STORE_INCHARGE';
-  else if (norm.includes('audit') || norm.includes('manager')) inferredRole = 'AUDIT_MANAGER';
-  else if (norm.includes('admin')) inferredRole = 'ADMIN';
-
-  const namePart = norm.split('@')[0].replace(/[._-]/g, ' ');
-  const capitalizedName = namePart ? (namePart.charAt(0).toUpperCase() + namePart.slice(1)) : 'Enterprise User';
-
-  return {
-    id: `USR-DEMO-${Math.floor(Math.random() * 8999 + 1000)}`,
-    full_name: capitalizedName,
-    email: norm,
-    role: inferredRole,
-    employee_id: 'EMP-DEMO-01',
-    must_change_password: false,
-    assigned_project_ids: ['PRJ-101', 'PRJ-102', 'PRJ-103', 'PRJ-104']
-  };
-};
 
 /**
  * Helper to generate request headers including Bearer token
@@ -187,28 +127,18 @@ export const authLogin = async (email, password) => {
         localStorage.setItem('PRAMAAN_cached_user', JSON.stringify(data.user));
       }
       return { success: true, data };
-    } else if (res.status === 401 || res.status === 403) {
-      return { success: false, error: data.error || 'Invalid credentials. Please verify your email and password.' };
+    } else {
+      return {
+        success: false,
+        error: data.error || data.detail || 'Invalid credentials. Please verify your email and password.'
+      };
     }
   } catch (err) {
-    console.warn('Backend server offline/unreachable. Proceeding with client demo authentication fallback.');
+    return {
+      success: false,
+      error: 'Backend authentication server unreachable. Please verify that the FastAPI backend is running on 127.0.0.1:8000.'
+    };
   }
-
-  // Client Demo Fallback Login
-  const mockUser = getOrCreateMockUser(cleanEmail);
-  const demoToken = `demo_jwt_token_${Date.now()}`;
-  setAuthToken(demoToken);
-  localStorage.setItem('PRAMAAN_cached_user', JSON.stringify(mockUser));
-
-  return {
-    success: true,
-    data: {
-      success: true,
-      token: demoToken,
-      user: mockUser,
-      message: `Welcome back, ${mockUser.full_name}.`
-    }
-  };
 };
 
 export const authLogout = async () => {

@@ -106,107 +106,13 @@ DEMO_CREDENTIALS: dict[str, dict[str, str]] = {
     },
 }
 
-DEMO_PROJECTS = [
-    {
-        "id": "PRJ-101",
-        "name": "Riverside Commercial Tower A",
-        "code": "PRJ-101",
-        "location": "North Tech Corridor, Zone 4, Nashik",
-        "contractor": "Apex Infracon Pvt Ltd",
-        "client": "Skyline Real Estate Developers",
-        "status": "Active",
-        "completionPercent": 68,
-        "budget": "$18.4M",
-        "site_lat": 28.6139,
-        "site_lon": 77.2090,
-        "geofence_radius_m": 500.0,
-    },
-    {
-        "id": "PRJ-102",
-        "name": "Metro Line 3 Sub-Station",
-        "code": "PRJ-102",
-        "location": "Central Transport Hub",
-        "contractor": "Metro Infrastructure Corp",
-        "client": "Delhi Metro Rail Corp",
-        "status": "Active",
-        "completionPercent": 42,
-        "budget": "$34.2M",
-        "site_lat": 28.5355,
-        "site_lon": 77.3910,
-        "geofence_radius_m": 600.0,
-    },
-    {
-        "id": "PRJ-103",
-        "name": "Highland Heights Residential Phase 2",
-        "code": "PRJ-103",
-        "location": "South Valley Boulevard",
-        "contractor": "Skyline Buildtech",
-        "client": "Urban Development Authority",
-        "status": "Active",
-        "completionPercent": 85,
-        "budget": "$12.8M",
-        "site_lat": 26.8467,
-        "site_lon": 80.9462,
-        "geofence_radius_m": 450.0,
-    },
-    {
-        "id": "PRJ-104",
-        "name": "Greenfield Warehouse Park",
-        "code": "PRJ-104",
-        "location": "Plot 18, Chakan Industrial Area",
-        "contractor": "Prestige Warehousing Ltd",
-        "client": "Nexus Logistics Hub",
-        "status": "Review Pending",
-        "completionPercent": 25,
-        "budget": "$9.5M",
-        "site_lat": 18.7606,
-        "site_lon": 73.8636,
-        "geofence_radius_m": 500.0,
-    },
-]
+DEMO_PROJECTS: list[dict[str, Any]] = []
 
 
 # ──────────────────────────────────────────────────────────────────────
 # Real-Time Notifications Live Store
 # ──────────────────────────────────────────────────────────────────────
-NOTIFICATIONS_STORE: list[dict[str, Any]] = [
-    {
-        "id": "NOTIF-1",
-        "title": "Discrepancy Flagged",
-        "message": "Tower B Cement consumption variance is +15.8%",
-        "time": "10m ago",
-        "timestamp": "2026-10-10T06:20:00Z",
-        "type": "material",
-        "target_roles": ["ADMIN", "STORE_INCHARGE", "SITE_SUPERVISOR"],
-        "project_id": "PRJ-101",
-        "actor": "AI Anomaly Engine",
-        "unread": True,
-    },
-    {
-        "id": "NOTIF-2",
-        "title": "New Photo Submitted",
-        "message": "Pier 48 North Column Stem de-shuttering photo ready for audit",
-        "time": "1h ago",
-        "timestamp": "2026-10-10T05:30:00Z",
-        "type": "audit",
-        "target_roles": ["ADMIN", "AUDIT_MANAGER"],
-        "project_id": "PRJ-101",
-        "actor": "Rajesh Varma (Site Supervisor)",
-        "unread": True,
-    },
-    {
-        "id": "NOTIF-3",
-        "title": "Decision Recorded",
-        "message": "Foundation Pile Caps approved by Lead Auditor",
-        "time": "3h ago",
-        "timestamp": "2026-10-10T03:30:00Z",
-        "type": "decision",
-        "target_roles": ["ADMIN", "SITE_SUPERVISOR"],
-        "project_id": "PRJ-101",
-        "actor": "Pooja Iyer, PE (Lead Auditor)",
-        "unread": False,
-    },
-]
+NOTIFICATIONS_STORE: list[dict[str, Any]] = []
 
 LIVE_AUDITS_STORE: list[dict[str, Any]] = []
 
@@ -364,11 +270,15 @@ async def api_auth_me(
                 "full_name": preset["full_name"] if preset else email.split("@")[0].title(),
                 "email": email,
                 "role": preset["role"] if preset else "SITE_SUPERVISOR",
-                "employee_id": "EMP-DEMO-01",
+                "employee_id": "EMP-01",
                 "must_change_password": False,
-                "assigned_project_ids": ["PRJ-101", "PRJ-102", "PRJ-103", "PRJ-104"],
+                "assigned_project_ids": [],
             },
         }
+
+    # Fetch assigned project IDs
+    m_res = await db.execute(select(ProjectMember.project_id).where(ProjectMember.user_id == user.id))
+    allotted_ids = [str(pid) for pid in m_res.scalars().all()]
 
     return {
         "success": True,
@@ -379,7 +289,7 @@ async def api_auth_me(
             "role": user.role,
             "employee_id": f"EMP-{user.role[:3]}-01",
             "must_change_password": False,
-            "assigned_project_ids": ["PRJ-101", "PRJ-102", "PRJ-103", "PRJ-104"],
+            "assigned_project_ids": allotted_ids,
         },
     }
 
@@ -607,44 +517,23 @@ async def api_get_projects(
         if isinstance(m.payload, dict) and "code" in m.payload:
             supabase_meta[m.payload["code"]] = m.payload
 
-    demo_meta = {p["code"]: p for p in DEMO_PROJECTS}
-
     if not db_projects:
-        # Seed initial projects into Supabase DB if empty
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
-        for p in DEMO_PROJECTS:
-            new_proj = Project(
-                id=uuid.uuid5(uuid.NAMESPACE_DNS, p["code"]),
-                name=p["name"],
-                code=p["code"],
-                site_lat=p["site_lat"],
-                site_lon=p["site_lon"],
-                geofence_radius_m=p["geofence_radius_m"],
-                start_date=now,
-                status=p["status"],
-            )
-            db.add(new_proj)
-        try:
-            await db.commit()
-        except Exception as exc:
-            logger.warning("Supabase seed rollback note: %s", exc)
-            await db.rollback()
-        return DEMO_PROJECTS
+        return []
 
     projects_list = []
     for p in db_projects:
-        meta = supabase_meta.get(p.code) or demo_meta.get(p.code, {})
+        meta = supabase_meta.get(p.code, {})
         projects_list.append(
             {
                 "id": p.code,
                 "name": p.name,
                 "code": p.code,
                 "location": meta.get("location", "Main Construction Site"),
-                "contractor": meta.get("contractor", "Apex Infracon Pvt Ltd"),
-                "client": meta.get("client", "Project Principal Developers"),
+                "contractor": meta.get("contractor", ""),
+                "client": meta.get("client", ""),
                 "status": p.status,
-                "completionPercent": meta.get("completionPercent", 0 if p.code not in demo_meta else 68),
-                "budget": meta.get("budget", "$18.4M"),
+                "completionPercent": meta.get("completionPercent", 0),
+                "budget": meta.get("budget", "$0"),
                 "site_lat": p.site_lat,
                 "site_lon": p.site_lon,
                 "geofence_radius_m": p.geofence_radius_m,
@@ -743,25 +632,6 @@ async def api_create_project(
     except Exception as exc:
         logger.warning("Supabase commit exception: %s", exc)
         await db.rollback()
-
-    # Update in-memory cache as well
-    DEMO_PROJECTS.insert(
-        0,
-        {
-            "id": new_proj.code,
-            "name": new_proj.name,
-            "code": new_proj.code,
-            "location": body.location or "Site Zone 4, Nashik, Maharashtra",
-            "contractor": body.contractor or "Apex Infracon Pvt Ltd",
-            "client": body.client or "Project Principal Developers",
-            "status": "Active",
-            "completionPercent": 0,
-            "budget": body.budget or "$15.0M",
-            "site_lat": new_proj.site_lat,
-            "site_lon": new_proj.site_lon,
-            "geofence_radius_m": new_proj.geofence_radius_m,
-        },
-    )
 
     # Automatically broadcast live notification to connected roles:
     # Admin gets notification for everything, while Site Supervisor, Store Incharge, and Auditor
